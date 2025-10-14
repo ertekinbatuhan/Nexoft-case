@@ -1,5 +1,7 @@
 package com.example.nexoftcontacts.presentation.screens
 
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,6 +13,12 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalContext
+import androidx.palette.graphics.Palette
+import coil.ImageLoader
+import coil.request.ImageRequest
+import coil.request.SuccessResult
 import com.example.nexoftcontacts.R
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -51,6 +59,36 @@ fun ContactDetailsScreen(
     var editedFirstName by remember { mutableStateOf(contact.firstName ?: "") }
     var editedLastName by remember { mutableStateOf(contact.lastName ?: "") }
     var editedPhoneNumber by remember { mutableStateOf(contact.phoneNumber ?: "") }
+    var dominantColor by remember { mutableStateOf(Color(0xFF0075FF)) }
+    
+    val context = LocalContext.current
+    
+    // Extract dominant color from photo
+    LaunchedEffect(contact.photoUri, selectedPhotoUri) {
+        val photoUri = selectedPhotoUri ?: contact.photoUri?.let { Uri.parse(it) }
+        photoUri?.let { uri ->
+            try {
+                val loader = ImageLoader(context)
+                val request = ImageRequest.Builder(context)
+                    .data(uri)
+                    .allowHardware(false)
+                    .build()
+                
+                val result = (loader.execute(request) as? SuccessResult)?.drawable
+                val bitmap = (result as? BitmapDrawable)?.bitmap
+                
+                bitmap?.let {
+                    Palette.from(it).generate { palette ->
+                        palette?.dominantSwatch?.rgb?.let { color ->
+                            dominantColor = Color(color)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                // Keep default color
+            }
+        }
+    }
     
     LaunchedEffect(contact.id) {
         onClearSelectedPhoto()
@@ -242,6 +280,12 @@ fun ContactDetailsScreen(
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .size(150.dp)
+                                .shadow(
+                                    elevation = 16.dp,
+                                    shape = CircleShape,
+                                    ambientColor = dominantColor.copy(alpha = 0.5f),
+                                    spotColor = dominantColor.copy(alpha = 0.5f)
+                                )
                                 .clip(CircleShape),
                             loading = {
                                 ContactInitialComponent(

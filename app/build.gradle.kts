@@ -58,6 +58,9 @@ dependencies {
     // Image loading
     implementation("io.coil-kt:coil-compose:2.5.0")
     
+    // Palette for dominant color extraction
+    implementation("androidx.palette:palette-ktx:1.0.0")
+    
     // Lottie Animation
     implementation("com.airbnb.android:lottie-compose:6.1.0")
     
