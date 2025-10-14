@@ -413,7 +413,7 @@ private fun SwipeBackground(
                     painter = painterResource(id = R.drawable.edit),
                     contentDescription = "Edit",
                     tint = Color.White,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(16.dp)
                 )
             }
             
@@ -422,7 +422,10 @@ private fun SwipeBackground(
                 modifier = Modifier
                     .width(56.dp)
                     .fillMaxHeight()
-                    .background(Color(0xFFFF0000))
+                    .background(
+                        color = Color(0xFFFF0000),
+                        shape = RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp)
+                    )
                     .clickable { onDeleteClick() },
                 contentAlignment = Alignment.Center
             ) {
@@ -430,7 +433,7 @@ private fun SwipeBackground(
                     painter = painterResource(id = R.drawable.delete),
                     contentDescription = "Delete",
                     tint = Color.White,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(18.dp)
                 )
             }
         }
