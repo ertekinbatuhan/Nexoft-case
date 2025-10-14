@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import com.example.nexoftcontacts.presentation.components.SearchBar
 import com.example.nexoftcontacts.presentation.components.NoSearchResults
+import com.example.nexoftcontacts.presentation.components.DeleteContactDialog
+import com.example.nexoftcontacts.presentation.components.DeleteSuccessSnackbar
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,11 +38,15 @@ fun ContactsScreen(
     searchQuery: String = "",
     isLoading: Boolean = false,
     errorMessage: String? = null,
+    showDeleteSuccess: Boolean = false,
     onAddContactClick: () -> Unit,
     onRefresh: () -> Unit = {},
     onErrorDismiss: () -> Unit = {},
     onSearchQueryChange: (String) -> Unit = {},
     onClearSearch: () -> Unit = {},
+    onDeleteContact: (String) -> Unit = {},
+    onDeleteSuccessDismiss: () -> Unit = {},
+    onContactClick: (com.example.nexoftcontacts.data.model.Contact) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     
@@ -77,37 +83,46 @@ fun ContactsScreen(
         },
         containerColor = Color(0xFFF6F6F6)
     ) { paddingValues ->
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            SearchBar(
-                searchQuery = searchQuery,
-                onSearchQueryChange = onSearchQueryChange,
-                onClearSearch = onClearSearch,
-                placeholder = "Search by name",
-                modifier = Modifier.padding(top = 16.dp, bottom = 10.dp)
-            )
-            
-            if (contacts.isEmpty()) {
-                if (searchQuery.isNotBlank()) {
-                    NoSearchResults(
-                        modifier = Modifier.fillMaxSize()
-                    )
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                SearchBar(
+                    searchQuery = searchQuery,
+                    onSearchQueryChange = onSearchQueryChange,
+                    onClearSearch = onClearSearch,
+                    placeholder = "Search by name",
+                    modifier = Modifier.padding(top = 16.dp, bottom = 10.dp)
+                )
+                
+                if (contacts.isEmpty()) {
+                    if (searchQuery.isNotBlank()) {
+                        NoSearchResults(
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        NoContactsEmptyState(
+                            onCreateNewContactClick = onAddContactClick,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 } else {
-                    NoContactsEmptyState(
-                        onCreateNewContactClick = onAddContactClick,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-            } else {
                 ContactList(
                     contacts = contacts,
                     searchQuery = searchQuery,
+                    onDeleteContact = onDeleteContact,
+                    onContactClick = onContactClick,
                     modifier = Modifier.fillMaxSize()
                 )
+                }
             }
+            
+            DeleteSuccessSnackbar(
+                showSnackbar = showDeleteSuccess,
+                onDismiss = onDeleteSuccessDismiss
+            )
         }
     }
 }
@@ -178,6 +193,8 @@ private fun NoContactsEmptyState(
 private fun ContactList(
     contacts: List<com.example.nexoftcontacts.data.model.Contact>,
     searchQuery: String,
+    onDeleteContact: (String) -> Unit,
+    onContactClick: (com.example.nexoftcontacts.data.model.Contact) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val filteredContacts = if (searchQuery.isBlank()) {
@@ -205,6 +222,8 @@ private fun ContactList(
                 ContactSectionCard(
                     sectionLetter = letter.toString(),
                     contacts = contactsInGroup,
+                    onDeleteContact = onDeleteContact,
+                    onContactClick = onContactClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
@@ -222,6 +241,8 @@ private fun ContactList(
 private fun ContactSectionCard(
     sectionLetter: String,
     contacts: List<com.example.nexoftcontacts.data.model.Contact>,
+    onDeleteContact: (String) -> Unit,
+    onContactClick: (com.example.nexoftcontacts.data.model.Contact) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -257,6 +278,8 @@ private fun ContactSectionCard(
             contacts.forEachIndexed { index, contact ->
                 ContactRow(
                     contact = contact,
+                    onDeleteContact = onDeleteContact,
+                    onContactClick = onContactClick,
                     modifier = Modifier.fillMaxWidth()
                 )
                 
@@ -277,8 +300,12 @@ private fun ContactSectionCard(
 @Composable
 private fun ContactRow(
     contact: com.example.nexoftcontacts.data.model.Contact,
+    onDeleteContact: (String) -> Unit,
+    onContactClick: (com.example.nexoftcontacts.data.model.Contact) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
             // Her iki yönü de kabul et
@@ -296,6 +323,15 @@ private fun ContactRow(
         }
     }
     
+    if (showDeleteDialog) {
+        DeleteContactDialog(
+            onDismiss = { showDeleteDialog = false },
+            onConfirm = { 
+                contact.id?.let { onDeleteContact(it) }
+            }
+        )
+    }
+    
     SwipeToDismissBox(
         state = dismissState,
         backgroundContent = {
@@ -307,6 +343,7 @@ private fun ContactRow(
                     }
                 },
                 onDeleteClick = { 
+                    showDeleteDialog = true
                     coroutineScope.launch {
                         dismissState.reset() // Butona tıklayınca kapat
                     }
@@ -325,6 +362,7 @@ private fun ContactRow(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clickable { onContactClick(contact) }
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {

@@ -22,22 +22,22 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 class ContactViewModel(
-    private val photoPickerUseCase: PhotoPickerUseCase,
-    private val getContactsUseCase: GetContactsUseCase = GetContactsUseCase(ContactRepositoryImpl()),
-    private val createContactUseCase: CreateContactUseCase = CreateContactUseCase(ContactRepositoryImpl()),
-    private val updateContactUseCase: UpdateContactUseCase = UpdateContactUseCase(ContactRepositoryImpl()),
-    private val deleteContactUseCase: DeleteContactUseCase = DeleteContactUseCase(ContactRepositoryImpl())
+    private val context: Context,
+    private val photoPickerUseCase: PhotoPickerUseCase
 ) : ViewModel() {
     
-    // UI State
+    private val repository = ContactRepositoryImpl(context)
+    private val getContactsUseCase = GetContactsUseCase(repository)
+    private val createContactUseCase = CreateContactUseCase(repository)
+    private val updateContactUseCase = UpdateContactUseCase(repository)
+    private val deleteContactUseCase = DeleteContactUseCase(repository)
+    
     private val _uiState = MutableStateFlow(ContactUiState())
     val uiState: StateFlow<ContactUiState> = _uiState.asStateFlow()
     
-    // Operation State (for create, update, delete)
     private val _operationState = MutableStateFlow(ContactOperationState())
     val operationState: StateFlow<ContactOperationState> = _operationState.asStateFlow()
     
-    // Photo picker state
     private val _selectedPhotoUri = mutableStateOf<Uri?>(null)
     val selectedPhotoUri: Uri? get() = _selectedPhotoUri.value
     
@@ -45,12 +45,11 @@ class ContactViewModel(
         loadContacts()
     }
     
-    // Load contacts from API
-    fun loadContacts() {
+    fun loadContacts(forceRefresh: Boolean = false) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
             
-            getContactsUseCase()
+            getContactsUseCase(forceRefresh)
                 .onSuccess { contacts ->
                     _uiState.value = _uiState.value.copy(
                         contacts = contacts,
@@ -68,12 +67,11 @@ class ContactViewModel(
         }
     }
     
-    // Refresh contacts
     fun refreshContacts() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isRefreshing = true)
             
-            getContactsUseCase()
+            getContactsUseCase(forceRefresh = true)
                 .onSuccess { contacts ->
                     _uiState.value = _uiState.value.copy(
                         contacts = contacts,
@@ -104,7 +102,6 @@ class ContactViewModel(
                         val imageFile = FileUtils.uriToFile(context, uri)
                         
                         if (imageFile != null) {
-                            val repository = ContactRepositoryImpl()
                             repository.uploadImage(imageFile)
                                 .onSuccess { uploadedUrl ->
                                     imageUrl = uploadedUrl
@@ -128,8 +125,6 @@ class ContactViewModel(
                     photoUri = imageUrl,
                     isDeviceContact = false
                 )
-                
-                val repository = ContactRepositoryImpl()
                 
                 repository.createUser(newContact)
                     .onSuccess { createdContact ->
@@ -233,26 +228,64 @@ class ContactViewModel(
         }
     }
     
-    // Delete contact
-    fun deleteContact(contactId: String) {
+    // Update contact with individual parameters
+    fun updateContact(contactId: String, firstName: String, lastName: String, phoneNumber: String, context: Context? = null) {
         viewModelScope.launch {
             _operationState.value = _operationState.value.copy(isLoading = true, errorMessage = null)
             
             try {
-                deleteContactUseCase(contactId)
-                    .onSuccess {
+                var imageUrl: String? = null
+                
+                // Eğer yeni fotoğraf seçildiyse yükle
+                _selectedPhotoUri.value?.let { uri ->
+                    if (context != null) {
+                        val imageFile = FileUtils.uriToFile(context, uri)
+                        
+                        if (imageFile != null) {
+                            repository.uploadImage(imageFile)
+                                .onSuccess { uploadedUrl ->
+                                    imageUrl = uploadedUrl
+                                }
+                                .onFailure { exception ->
+                                    imageUrl = null
+                                }
+                        } else {
+                            imageUrl = null
+                        }
+                    } else {
+                        imageUrl = null
+                    }
+                }
+                
+                if (imageUrl == null) {
+                    val currentContact = _uiState.value.contacts.find { it.id == contactId }
+                    imageUrl = currentContact?.photoUri
+                }
+                
+                val contact = Contact(
+                    id = contactId,
+                    firstName = firstName,
+                    lastName = lastName,
+                    phoneNumber = phoneNumber,
+                    photoUri = imageUrl,
+                    isDeviceContact = false
+                )
+                
+                updateContactUseCase(contact)
+                    .onSuccess { updatedContact ->
                         _operationState.value = _operationState.value.copy(
                             isLoading = false,
-                            isSuccess = true,
+                            isSuccess = false,  // Don't show success screen for updates
                             errorMessage = null
                         )
+                        clearSelectedPhoto()
                         loadContacts()
                     }
                     .onFailure { exception ->
                         _operationState.value = _operationState.value.copy(
                             isLoading = false,
                             isSuccess = false,
-                            errorMessage = exception.message ?: "Failed to delete contact"
+                            errorMessage = exception.message ?: "Failed to update contact"
                         )
                     }
             } catch (e: Exception) {
@@ -263,6 +296,50 @@ class ContactViewModel(
                 )
             }
         }
+    }
+    
+    // Delete contact
+    fun deleteContact(contactId: String, context: Context? = null) {
+        viewModelScope.launch {
+            _operationState.value = _operationState.value.copy(isLoading = true, errorMessage = null)
+            
+            try {
+                deleteContactUseCase(contactId)
+                    .onSuccess {
+                        // API'den başarıyla silindiyse Room'dan da sil
+                        context?.let {
+                            com.example.nexoftcontacts.utils.ContactsHelper.removeSavedContact(it, contactId)
+                        }
+                        
+                        _operationState.value = _operationState.value.copy(
+                            isLoading = false,
+                            isSuccess = false,
+                            isDeleteSuccess = true, // Delete success snackbar göster
+                            errorMessage = null
+                        )
+                        loadContacts()
+                    }
+                    .onFailure { exception ->
+                        _operationState.value = _operationState.value.copy(
+                            isLoading = false,
+                            isSuccess = false,
+                            isDeleteSuccess = false,
+                            errorMessage = exception.message ?: "Failed to delete contact"
+                        )
+                    }
+            } catch (e: Exception) {
+                _operationState.value = _operationState.value.copy(
+                    isLoading = false,
+                    isSuccess = false,
+                    isDeleteSuccess = false,
+                    errorMessage = e.message ?: "An error occurred"
+                )
+            }
+        }
+    }
+    
+    fun clearDeleteSuccess() {
+        _operationState.value = _operationState.value.copy(isDeleteSuccess = false)
     }
     
     fun updateSearchQuery(query: String) {
