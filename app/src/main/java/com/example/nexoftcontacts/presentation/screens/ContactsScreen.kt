@@ -39,6 +39,7 @@ fun ContactsScreen(
     isLoading: Boolean = false,
     errorMessage: String? = null,
     showDeleteSuccess: Boolean = false,
+    showUpdateSuccess: Boolean = false,
     onAddContactClick: () -> Unit,
     onRefresh: () -> Unit = {},
     onErrorDismiss: () -> Unit = {},
@@ -46,6 +47,7 @@ fun ContactsScreen(
     onClearSearch: () -> Unit = {},
     onDeleteContact: (String) -> Unit = {},
     onDeleteSuccessDismiss: () -> Unit = {},
+    onUpdateSuccessDismiss: () -> Unit = {},
     onContactClick: (com.example.nexoftcontacts.data.model.Contact) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -121,7 +123,14 @@ fun ContactsScreen(
             
             DeleteSuccessSnackbar(
                 showSnackbar = showDeleteSuccess,
-                onDismiss = onDeleteSuccessDismiss
+                onDismiss = onDeleteSuccessDismiss,
+                message = "User is deleted!"
+            )
+            
+            DeleteSuccessSnackbar(
+                showSnackbar = showUpdateSuccess,
+                onDismiss = onUpdateSuccessDismiss,
+                message = "User is updated!"
             )
         }
     }

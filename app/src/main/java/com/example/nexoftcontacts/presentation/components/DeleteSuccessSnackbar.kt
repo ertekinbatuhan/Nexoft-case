@@ -18,7 +18,8 @@ import kotlinx.coroutines.delay
 @Composable
 fun DeleteSuccessSnackbar(
     showSnackbar: Boolean,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    message: String = "User is deleted!"
 ) {
     LaunchedEffect(showSnackbar) {
         if (showSnackbar) {
@@ -66,7 +67,7 @@ fun DeleteSuccessSnackbar(
                     }
                     
                     Text(
-                        text = "User is deleted!",
+                        text = message,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF12B76A)

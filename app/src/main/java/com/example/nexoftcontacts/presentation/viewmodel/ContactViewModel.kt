@@ -276,6 +276,7 @@ class ContactViewModel(
                         _operationState.value = _operationState.value.copy(
                             isLoading = false,
                             isSuccess = false,  // Don't show success screen for updates
+                            isUpdateSuccess = true, // Show update success snackbar
                             errorMessage = null
                         )
                         clearSelectedPhoto()
@@ -285,6 +286,7 @@ class ContactViewModel(
                         _operationState.value = _operationState.value.copy(
                             isLoading = false,
                             isSuccess = false,
+                            isUpdateSuccess = false,
                             errorMessage = exception.message ?: "Failed to update contact"
                         )
                     }
@@ -340,6 +342,10 @@ class ContactViewModel(
     
     fun clearDeleteSuccess() {
         _operationState.value = _operationState.value.copy(isDeleteSuccess = false)
+    }
+    
+    fun clearUpdateSuccess() {
+        _operationState.value = _operationState.value.copy(isUpdateSuccess = false)
     }
     
     fun updateSearchQuery(query: String) {

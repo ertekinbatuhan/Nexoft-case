@@ -115,6 +115,7 @@ fun ContactsApp() {
         isLoading = uiState.isLoading,
         errorMessage = uiState.errorMessage,
         showDeleteSuccess = operationState.isDeleteSuccess,
+        showUpdateSuccess = operationState.isUpdateSuccess,
         onAddContactClick = {
             showAddContactSheet = true
         },
@@ -135,6 +136,9 @@ fun ContactsApp() {
         },
         onDeleteSuccessDismiss = {
             viewModel.clearDeleteSuccess()
+        },
+        onUpdateSuccessDismiss = {
+            viewModel.clearUpdateSuccess()
         },
         onContactClick = { contact ->
             selectedContact = contact
