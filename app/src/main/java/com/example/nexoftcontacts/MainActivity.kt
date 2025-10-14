@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.nexoftcontacts.data.repository.PhotoRepositoryImpl
 import com.example.nexoftcontacts.domain.usecase.PhotoPickerUseCase
 import com.example.nexoftcontacts.presentation.screens.AddContactScreen
@@ -38,7 +39,6 @@ fun ContactsApp() {
     val viewModel: ContactViewModel = viewModel { ContactViewModel(photoPickerUseCase) }
     
     var showAddContactSheet by remember { mutableStateOf(false) }
-    var showSuccessScreen by remember { mutableStateOf(false) }
     
     // Camera launcher
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -63,10 +63,28 @@ fun ContactsApp() {
         photoRepository.setGalleryLauncher(galleryLauncher)
     }
     
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val operationState by viewModel.operationState.collectAsStateWithLifecycle()
+    
     ContactsScreen(
-        contacts = viewModel.contacts,
+        contacts = uiState.filteredContacts,
+        searchQuery = uiState.searchQuery,
+        isLoading = uiState.isLoading,
+        errorMessage = uiState.errorMessage,
         onAddContactClick = {
             showAddContactSheet = true
+        },
+        onRefresh = {
+            viewModel.refreshContacts()
+        },
+        onErrorDismiss = {
+            viewModel.clearErrorMessage()
+        },
+        onSearchQueryChange = { query ->
+            viewModel.updateSearchQuery(query)
+        },
+        onClearSearch = {
+            viewModel.clearSearch()
         }
     )
     
@@ -81,11 +99,12 @@ fun ContactsApp() {
                 viewModel.addContact(
                     firstName = firstName,
                     lastName = lastName,
-                    phoneNumber = phoneNumber
+                    phoneNumber = phoneNumber,
+                    context = context
                 )
                 showAddContactSheet = false
-                showSuccessScreen = true
             },
+            isLoading = operationState.isLoading,
             onCameraClick = {
                 viewModel.capturePhotoFromCamera()
             },
@@ -95,11 +114,11 @@ fun ContactsApp() {
         )
     }
     
-    // Success Screen
-    if (showSuccessScreen) {
+    // Success Screen - show when operation is successful
+    if (operationState.isSuccess) {
         ContactSuccessScreen(
             onDismiss = {
-                showSuccessScreen = false
+                viewModel.clearOperationState()
             }
         )
     }

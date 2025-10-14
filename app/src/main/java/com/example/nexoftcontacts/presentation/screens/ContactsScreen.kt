@@ -1,5 +1,7 @@
 package com.example.nexoftcontacts.presentation.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import com.example.nexoftcontacts.R
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,20 +19,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
+import com.example.nexoftcontacts.presentation.components.SearchBar
+import com.example.nexoftcontacts.presentation.components.NoSearchResults
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContactsScreen(
     contacts: List<com.example.nexoftcontacts.data.model.Contact>,
+    searchQuery: String = "",
+    isLoading: Boolean = false,
+    errorMessage: String? = null,
     onAddContactClick: () -> Unit,
+    onRefresh: () -> Unit = {},
+    onErrorDismiss: () -> Unit = {},
+    onSearchQueryChange: (String) -> Unit = {},
+    onClearSearch: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    var searchQuery by remember { mutableStateOf("") }
     
     Scaffold(
         topBar = {
@@ -69,39 +82,25 @@ fun ContactsScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 16.dp, bottom = 10.dp),
-                placeholder = {
-                    Text(
-                        text = "Search by name",
-                        color = Color.Gray
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
-                        tint = Color.Gray
-                    )
-                },
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color.LightGray,
-                    focusedBorderColor = Color(0xFF0075FF)
-                ),
-                singleLine = true
+            SearchBar(
+                searchQuery = searchQuery,
+                onSearchQueryChange = onSearchQueryChange,
+                onClearSearch = onClearSearch,
+                placeholder = "Search by name",
+                modifier = Modifier.padding(top = 16.dp, bottom = 10.dp)
             )
             
             if (contacts.isEmpty()) {
-                NoContactsEmptyState(
-                    onCreateNewContactClick = onAddContactClick,
-                    modifier = Modifier.fillMaxSize()
-                )
+                if (searchQuery.isNotBlank()) {
+                    NoSearchResults(
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    NoContactsEmptyState(
+                        onCreateNewContactClick = onAddContactClick,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             } else {
                 ContactList(
                     contacts = contacts,
@@ -186,13 +185,13 @@ private fun ContactList(
     } else {
         contacts.filter { contact ->
             contact.fullName.contains(searchQuery, ignoreCase = true) ||
-            contact.phoneNumber.contains(searchQuery)
+            (contact.phoneNumber?.contains(searchQuery) ?: false)
         }
     }
     
     val groupedContacts = filteredContacts
-        .sortedBy { it.firstName.lowercase() }
-        .groupBy { it.firstName.first().uppercaseChar() }
+        .sortedBy { it.firstName?.lowercase() ?: "" }
+        .groupBy { it.firstName?.firstOrNull()?.uppercaseChar() ?: '#' }
     
     println("DEBUG: Filtered contacts: ${filteredContacts.size}")
     println("DEBUG: Grouped contacts: ${groupedContacts.keys}")
@@ -270,65 +269,170 @@ private fun ContactSectionCard(
                     )
                 }
             }
-            
-            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ContactRow(
     contact: com.example.nexoftcontacts.data.model.Contact,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (contact.photoUri != null) {
-            SubcomposeAsyncImage(
-                model = contact.photoUri,
-                contentDescription = "${contact.fullName} photo",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape),
-                loading = {
-                    ContactInitialComponent(
-                        initial = contact.firstName.first().uppercaseChar().toString(),
-                        modifier = Modifier.size(40.dp)
-                    )
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = { value ->
+            // Her iki yönü de kabul et
+            true
+        },
+        positionalThreshold = { it * 0.25f }
+    )
+    
+    val coroutineScope = rememberCoroutineScope()
+    
+    // Sağa kaydırma algılandığında state'i sıfırla
+    LaunchedEffect(dismissState.currentValue) {
+        if (dismissState.currentValue == SwipeToDismissBoxValue.StartToEnd) {
+            dismissState.reset()
+        }
+    }
+    
+    SwipeToDismissBox(
+        state = dismissState,
+        backgroundContent = {
+            SwipeBackground(
+                dismissValue = dismissState.targetValue,
+                onEditClick = { 
+                    coroutineScope.launch {
+                        dismissState.reset() // Butona tıklayınca kapat
+                    }
                 },
-                error = {
-                    ContactInitialComponent(
-                        initial = contact.firstName.first().uppercaseChar().toString(),
-                        modifier = Modifier.size(40.dp)
-                    )
+                onDeleteClick = { 
+                    coroutineScope.launch {
+                        dismissState.reset() // Butona tıklayınca kapat
+                    }
                 }
             )
-        } else {
-            ContactInitialComponent(
-                initial = contact.firstName.first().uppercaseChar().toString(),
-                modifier = Modifier.size(40.dp)
-            )
-        }
-        
-        Spacer(modifier = Modifier.width(16.dp))
-        
-        Column(
-            modifier = Modifier.weight(1f)
+        },
+        enableDismissFromStartToEnd = true, // Sağa kaydırmayı etkinleştir
+        enableDismissFromEndToStart = true, // Sola kaydırmayı etkinleştir
+        modifier = modifier
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
         ) {
-            Text(
-                text = contact.fullName,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color(0xFF0F172A)
-            )
-            Text(
-                text = contact.phoneNumber,
-                fontSize = 14.sp,
-                color = Color(0xFF6B7280)
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+            if (contact.photoUri != null) {
+                SubcomposeAsyncImage(
+                    model = contact.photoUri,
+                    contentDescription = "${contact.fullName} photo",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape),
+                    loading = {
+                        ContactInitialComponent(
+                            initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                            modifier = Modifier.size(40.dp)
+                        )
+                    },
+                    error = {
+                        ContactInitialComponent(
+                            initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
+                )
+            } else {
+                ContactInitialComponent(
+                    initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                    modifier = Modifier.size(40.dp)
+                )
+            }
+            
+            Spacer(modifier = Modifier.width(16.dp))
+            
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = contact.fullName,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF0F172A)
+                )
+                Text(
+                    text = contact.phoneNumber ?: "No phone number",
+                    fontSize = 14.sp,
+                    color = Color(0xFF6B7280)
+                )
+            }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SwipeBackground(
+    dismissValue: SwipeToDismissBoxValue,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    val color = when (dismissValue) {
+        SwipeToDismissBoxValue.EndToStart -> Color.Transparent
+        else -> Color.Transparent
+    }
+    
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color),
+        contentAlignment = Alignment.CenterEnd
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(0.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxHeight()
+        ) {
+            // Mavi düzenleme butonu
+            Box(
+                modifier = Modifier
+                    .width(56.dp)
+                    .fillMaxHeight()
+                    .background(Color(0xFF1EA7FF))
+                    .clickable { onEditClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.edit),
+                    contentDescription = "Edit",
+                    tint = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            
+            // Kırmızı silme butonu
+            Box(
+                modifier = Modifier
+                    .width(56.dp)
+                    .fillMaxHeight()
+                    .background(Color(0xFFFF0000))
+                    .clickable { onDeleteClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.delete),
+                    contentDescription = "Delete",
+                    tint = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
     }
 }
@@ -385,20 +489,20 @@ private fun ContactItem(
                         .clip(CircleShape),
                     loading = {
                         ContactInitialComponent(
-                            initial = contact.firstName.first().uppercaseChar().toString(),
+                            initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
                             modifier = Modifier.size(40.dp)
                         )
                     },
                     error = {
                         ContactInitialComponent(
-                            initial = contact.firstName.first().uppercaseChar().toString(),
+                            initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
                             modifier = Modifier.size(40.dp)
                         )
                     }
                 )
             } else {
                 ContactInitialComponent(
-                    initial = contact.firstName.first().uppercaseChar().toString(),
+                    initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
                     modifier = Modifier.size(40.dp)
                 )
             }
@@ -415,7 +519,7 @@ private fun ContactItem(
                     color = Color(0xFF0F172A)
                 )
                 Text(
-                    text = contact.phoneNumber,
+                    text = contact.phoneNumber ?: "No phone number",
                     fontSize = 14.sp,
                     color = Color(0xFF6B7280)
                 )
