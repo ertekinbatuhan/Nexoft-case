@@ -316,7 +316,6 @@ private fun ContactRow(
     
     val coroutineScope = rememberCoroutineScope()
     
-    // Sağa kaydırma algılandığında state'i sıfırla
     LaunchedEffect(dismissState.currentValue) {
         if (dismissState.currentValue == SwipeToDismissBoxValue.StartToEnd) {
             dismissState.reset()
@@ -338,6 +337,7 @@ private fun ContactRow(
             SwipeBackground(
                 dismissValue = dismissState.targetValue,
                 onEditClick = { 
+                    onContactClick(contact) 
                     coroutineScope.launch {
                         dismissState.reset() // Butona tıklayınca kapat
                     }
