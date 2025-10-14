@@ -9,6 +9,7 @@ import com.example.nexoftcontacts.data.model.Contact
 import com.example.nexoftcontacts.data.repository.ContactRepositoryImpl
 import com.example.nexoftcontacts.utils.FileUtils
 import com.example.nexoftcontacts.utils.SearchHistoryManager
+import com.example.nexoftcontacts.utils.ContactsHelper
 import com.example.nexoftcontacts.domain.usecase.CreateContactUseCase
 import com.example.nexoftcontacts.domain.usecase.UpdateContactUseCase
 import com.example.nexoftcontacts.domain.usecase.DeleteContactUseCase
@@ -57,9 +58,18 @@ class ContactViewModel(
             
             getContactsUseCase(forceRefresh)
                 .onSuccess { contacts ->
+                    // Check which contacts are saved to device
+                    val contactsWithDeviceStatus = contacts.map { contact ->
+                        val isDeviceContact = contact.id?.let { 
+                            ContactsHelper.isContactSavedToPhone(context, it)
+                        } ?: false
+                        
+                        contact.copy(isDeviceContact = isDeviceContact)
+                    }
+                    
                     _uiState.value = _uiState.value.copy(
-                        contacts = contacts,
-                        filteredContacts = filterContacts(contacts, _uiState.value.searchQuery),
+                        contacts = contactsWithDeviceStatus,
+                        filteredContacts = filterContacts(contactsWithDeviceStatus, _uiState.value.searchQuery),
                         isLoading = false,
                         errorMessage = null
                     )
@@ -79,9 +89,18 @@ class ContactViewModel(
             
             getContactsUseCase(forceRefresh = true)
                 .onSuccess { contacts ->
+                    // Check which contacts are saved to device
+                    val contactsWithDeviceStatus = contacts.map { contact ->
+                        val isDeviceContact = contact.id?.let { 
+                            ContactsHelper.isContactSavedToPhone(context, it)
+                        } ?: false
+                        
+                        contact.copy(isDeviceContact = isDeviceContact)
+                    }
+                    
                     _uiState.value = _uiState.value.copy(
-                        contacts = contacts,
-                        filteredContacts = filterContacts(contacts, _uiState.value.searchQuery),
+                        contacts = contactsWithDeviceStatus,
+                        filteredContacts = filterContacts(contactsWithDeviceStatus, _uiState.value.searchQuery),
                         isRefreshing = false,
                         errorMessage = null
                     )

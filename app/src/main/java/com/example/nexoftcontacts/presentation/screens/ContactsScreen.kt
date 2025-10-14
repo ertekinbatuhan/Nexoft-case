@@ -463,32 +463,47 @@ private fun ContactRow(
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-            if (contact.photoUri != null) {
-                SubcomposeAsyncImage(
-                    model = contact.photoUri,
-                    contentDescription = "${contact.fullName} photo",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape),
-                    loading = {
-                        ContactInitialComponent(
-                            initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                            modifier = Modifier.size(40.dp)
-                        )
-                    },
-                    error = {
-                        ContactInitialComponent(
-                            initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                            modifier = Modifier.size(40.dp)
-                        )
-                    }
-                )
-            } else {
-                ContactInitialComponent(
-                    initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                    modifier = Modifier.size(40.dp)
-                )
+            // Profile photo with badge
+            Box {
+                if (contact.photoUri != null) {
+                    SubcomposeAsyncImage(
+                        model = contact.photoUri,
+                        contentDescription = "${contact.fullName} photo",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape),
+                        loading = {
+                            ContactInitialComponent(
+                                initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                                modifier = Modifier.size(40.dp)
+                            )
+                        },
+                        error = {
+                            ContactInitialComponent(
+                                initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                                modifier = Modifier.size(40.dp)
+                            )
+                        }
+                    )
+                } else {
+                    ContactInitialComponent(
+                        initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
+                
+                // Phone badge if contact is saved to device
+                if (contact.isDeviceContact) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.telephone),
+                        contentDescription = "Device Contact",
+                        tint = Color.Unspecified,
+                        modifier = Modifier
+                            .size(16.dp)
+                            .align(Alignment.BottomEnd)
+                    )
+                }
             }
             
             Spacer(modifier = Modifier.width(16.dp))

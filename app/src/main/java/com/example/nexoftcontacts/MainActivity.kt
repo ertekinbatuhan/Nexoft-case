@@ -75,6 +75,8 @@ fun ContactsApp() {
                         contact.id?.let { 
                             ContactsHelper.markContactAsSaved(context, it)
                             isSavedToPhone = isSavedToPhone + (it to true)
+                            // Refresh contacts to update isDeviceContact flag
+                            viewModel.refreshContacts()
                         }
                     }
                 }
