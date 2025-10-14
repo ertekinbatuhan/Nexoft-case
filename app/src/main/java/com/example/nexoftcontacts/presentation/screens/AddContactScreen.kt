@@ -33,18 +33,23 @@ import com.example.nexoftcontacts.R
 @Composable
 fun AddContactScreen(
     selectedPhotoUri: Uri? = null,
+    initialFirstName: String? = null,
+    initialLastName: String? = null,
+    initialPhoneNumber: String? = null,
+    isEditMode: Boolean = false,
     onDismiss: () -> Unit,
     onSave: (firstName: String, lastName: String, phoneNumber: String) -> Unit,
     onCameraClick: () -> Unit = {},
     onGalleryClick: () -> Unit = {},
+    isLoading: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    var firstName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
+    var firstName by remember { mutableStateOf(initialFirstName ?: "") }
+    var lastName by remember { mutableStateOf(initialLastName ?: "") }
+    var phoneNumber by remember { mutableStateOf(initialPhoneNumber ?: "") }
     var showPhotoPickerSheet by remember { mutableStateOf(false) }
     
-    val isDoneEnabled = firstName.isNotBlank() && lastName.isNotBlank() && phoneNumber.isNotBlank()
+    val isDoneEnabled = firstName.isNotBlank() && lastName.isNotBlank() && phoneNumber.isNotBlank() && !isLoading
     val bottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
@@ -68,13 +73,7 @@ fun AddContactScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(onClick = {
-                    // Clear form when canceling
-                    firstName = ""
-                    lastName = ""
-                    phoneNumber = ""
-                    onDismiss()
-                }) {
+                TextButton(onClick = onDismiss) {
                     Text(
                         text = "Cancel",
                         style = TextStyle(
@@ -89,7 +88,7 @@ fun AddContactScreen(
                 }
                 
                 Text(
-                    text = "New Contact",
+                    text = if (isEditMode) "Edit Contact" else "New Contact",
                     style = TextStyle(
                         fontSize = 20.sp,
                         fontWeight = FontWeight(800),
@@ -100,31 +99,34 @@ fun AddContactScreen(
                         .height(25.dp)
                 )
                 
-                TextButton(
-                    onClick = {
-                        if (isDoneEnabled) {
-                            onSave(firstName, lastName, phoneNumber)
-                            // Clear form after saving
-                            firstName = ""
-                            lastName = ""
-                            phoneNumber = ""
-                            onDismiss()
+                        TextButton(
+                            onClick = {
+                                if (isDoneEnabled) {
+                                    onSave(firstName, lastName, phoneNumber)
+                                }
+                            },
+                            enabled = isDoneEnabled
+                        ) {
+                            if (isLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    strokeWidth = 2.dp,
+                                    color = Color(0xFF0075FF)
+                                )
+                            } else {
+                                Text(
+                                    text = "Done",
+                                    style = TextStyle(
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight(700),
+                                        color = if (isDoneEnabled) Color(0xFF0075FF) else Color.Gray
+                                    ),
+                                    modifier = Modifier
+                                        .width(41.dp)
+                                        .height(20.dp)
+                                )
+                            }
                         }
-                    },
-                    enabled = isDoneEnabled
-                ) {
-                    Text(
-                        text = "Done",
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight(700),
-                            color = if (isDoneEnabled) Color(0xFF0075FF) else Color.Gray
-                        ),
-                        modifier = Modifier
-                            .width(41.dp)
-                            .height(20.dp)
-                    )
-                }
             }
             
             Spacer(modifier = Modifier.height(24.dp))
