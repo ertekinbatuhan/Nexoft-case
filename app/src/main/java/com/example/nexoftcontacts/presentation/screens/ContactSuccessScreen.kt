@@ -1,6 +1,5 @@
 package com.example.nexoftcontacts.presentation.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -8,8 +7,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -17,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.example.nexoftcontacts.R
+import com.example.nexoftcontacts.presentation.components.DoneAnimation
 import kotlinx.coroutines.delay
 
 @Composable
@@ -42,19 +39,21 @@ fun ContactSuccessScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White),
+                .background(Color.White)
+                .padding(horizontal = 32.dp),
             contentAlignment = Alignment.Center
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // Success Icon
-                Image(
-                    painter = painterResource(id = R.drawable.done),
-                    contentDescription = "Success",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(96.dp)
+                // Success Animation
+                DoneAnimation(
+                    modifier = Modifier
+                        .width(96.dp)
+                        .height(95.74.dp),
+                    isPlaying = true,
+                    iterations = 1
                 )
                 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -67,10 +66,13 @@ fun ContactSuccessScreen(
                         fontWeight = FontWeight(700),
                         color = Color(0xFF202020),
                         textAlign = TextAlign.Center,
-                    )
+                    ),
+                    modifier = Modifier
+                        .width(310.dp)
+                        .height(30.dp)
                 )
                 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 
                 // "New contact saved 🎉" text
                 Text(
@@ -78,9 +80,12 @@ fun ContactSuccessScreen(
                     style = TextStyle(
                         fontSize = 16.sp,
                         fontWeight = FontWeight(500),
-                        color = Color(0xFF202020),
+                        color = Color(0xFF3D3D3D),
                         textAlign = TextAlign.Center,
-                    )
+                    ),
+                    modifier = Modifier
+                        .width(310.dp)
+                        .height(20.dp)
                 )
             }
         }
