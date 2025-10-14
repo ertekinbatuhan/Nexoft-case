@@ -243,7 +243,8 @@ class ContactViewModel(
                     .onSuccess {
                         _operationState.value = _operationState.value.copy(
                             isLoading = false,
-                            isSuccess = true,
+                            isSuccess = false,
+                            isDeleteSuccess = true, // Delete success snackbar göster
                             errorMessage = null
                         )
                         loadContacts()
@@ -252,6 +253,7 @@ class ContactViewModel(
                         _operationState.value = _operationState.value.copy(
                             isLoading = false,
                             isSuccess = false,
+                            isDeleteSuccess = false,
                             errorMessage = exception.message ?: "Failed to delete contact"
                         )
                     }
@@ -259,10 +261,15 @@ class ContactViewModel(
                 _operationState.value = _operationState.value.copy(
                     isLoading = false,
                     isSuccess = false,
+                    isDeleteSuccess = false,
                     errorMessage = e.message ?: "An error occurred"
                 )
             }
         }
+    }
+    
+    fun clearDeleteSuccess() {
+        _operationState.value = _operationState.value.copy(isDeleteSuccess = false)
     }
     
     fun updateSearchQuery(query: String) {

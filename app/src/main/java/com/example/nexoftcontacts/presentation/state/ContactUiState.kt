@@ -14,5 +14,6 @@ data class ContactUiState(
 data class ContactOperationState(
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
+    val isDeleteSuccess: Boolean = false,
     val errorMessage: String? = null
 )

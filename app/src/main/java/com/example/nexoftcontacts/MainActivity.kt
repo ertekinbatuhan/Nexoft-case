@@ -71,6 +71,7 @@ fun ContactsApp() {
         searchQuery = uiState.searchQuery,
         isLoading = uiState.isLoading,
         errorMessage = uiState.errorMessage,
+        showDeleteSuccess = operationState.isDeleteSuccess,
         onAddContactClick = {
             showAddContactSheet = true
         },
@@ -85,6 +86,12 @@ fun ContactsApp() {
         },
         onClearSearch = {
             viewModel.clearSearch()
+        },
+        onDeleteContact = { contactId ->
+            viewModel.deleteContact(contactId)
+        },
+        onDeleteSuccessDismiss = {
+            viewModel.clearDeleteSuccess()
         }
     )
     
