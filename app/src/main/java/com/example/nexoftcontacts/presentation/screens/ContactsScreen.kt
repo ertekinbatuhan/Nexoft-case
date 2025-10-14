@@ -29,6 +29,7 @@ import com.example.nexoftcontacts.presentation.components.SearchBar
 import com.example.nexoftcontacts.presentation.components.NoSearchResults
 import com.example.nexoftcontacts.presentation.components.DeleteContactDialog
 import com.example.nexoftcontacts.presentation.components.DeleteSuccessSnackbar
+import com.example.nexoftcontacts.presentation.components.SearchHistory
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,6 +37,7 @@ import kotlinx.coroutines.launch
 fun ContactsScreen(
     contacts: List<com.example.nexoftcontacts.data.model.Contact>,
     searchQuery: String = "",
+    searchHistory: List<String> = emptyList(),
     isLoading: Boolean = false,
     errorMessage: String? = null,
     showDeleteSuccess: Boolean = false,
@@ -45,12 +47,17 @@ fun ContactsScreen(
     onErrorDismiss: () -> Unit = {},
     onSearchQueryChange: (String) -> Unit = {},
     onClearSearch: () -> Unit = {},
+    onSearchFocusChanged: (Boolean) -> Unit = {},
+    onHistoryItemClick: (String) -> Unit = {},
+    onRemoveHistoryItem: (String) -> Unit = {},
+    onClearSearchHistory: () -> Unit = {},
     onDeleteContact: (String) -> Unit = {},
     onDeleteSuccessDismiss: () -> Unit = {},
     onUpdateSuccessDismiss: () -> Unit = {},
     onContactClick: (com.example.nexoftcontacts.data.model.Contact) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    var isSearchFocused by remember { mutableStateOf(false) }
     
     Scaffold(
         topBar = {
@@ -95,11 +102,26 @@ fun ContactsScreen(
                     searchQuery = searchQuery,
                     onSearchQueryChange = onSearchQueryChange,
                     onClearSearch = onClearSearch,
+                    onFocusChanged = { focused ->
+                        isSearchFocused = focused
+                        onSearchFocusChanged(focused)
+                    },
                     placeholder = "Search by name",
                     modifier = Modifier.padding(top = 16.dp, bottom = 10.dp)
                 )
                 
-                if (contacts.isEmpty()) {
+                // Show search history when search is focused and empty
+                if (isSearchFocused && searchQuery.isEmpty() && searchHistory.isNotEmpty()) {
+                    SearchHistory(
+                        searchHistory = searchHistory,
+                        onHistoryItemClick = { query ->
+                            onHistoryItemClick(query)
+                        },
+                        onRemoveHistoryItem = onRemoveHistoryItem,
+                        onClearAll = onClearSearchHistory,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                } else if (contacts.isEmpty()) {
                     if (searchQuery.isNotBlank()) {
                         NoSearchResults(
                             modifier = Modifier.fillMaxSize()
@@ -111,13 +133,13 @@ fun ContactsScreen(
                         )
                     }
                 } else {
-                ContactList(
-                    contacts = contacts,
-                    searchQuery = searchQuery,
-                    onDeleteContact = onDeleteContact,
-                    onContactClick = onContactClick,
-                    modifier = Modifier.fillMaxSize()
-                )
+                    ContactList(
+                        contacts = contacts,
+                        searchQuery = searchQuery,
+                        onDeleteContact = onDeleteContact,
+                        onContactClick = onContactClick,
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
             

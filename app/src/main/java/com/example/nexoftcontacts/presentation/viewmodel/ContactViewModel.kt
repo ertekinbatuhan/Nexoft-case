@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.nexoftcontacts.data.model.Contact
 import com.example.nexoftcontacts.data.repository.ContactRepositoryImpl
 import com.example.nexoftcontacts.utils.FileUtils
+import com.example.nexoftcontacts.utils.SearchHistoryManager
 import com.example.nexoftcontacts.domain.usecase.CreateContactUseCase
 import com.example.nexoftcontacts.domain.usecase.UpdateContactUseCase
 import com.example.nexoftcontacts.domain.usecase.DeleteContactUseCase
@@ -31,6 +32,7 @@ class ContactViewModel(
     private val createContactUseCase = CreateContactUseCase(repository)
     private val updateContactUseCase = UpdateContactUseCase(repository)
     private val deleteContactUseCase = DeleteContactUseCase(repository)
+    private val searchHistoryManager = SearchHistoryManager(context)
     
     private val _uiState = MutableStateFlow(ContactUiState())
     val uiState: StateFlow<ContactUiState> = _uiState.asStateFlow()
@@ -41,8 +43,12 @@ class ContactViewModel(
     private val _selectedPhotoUri = mutableStateOf<Uri?>(null)
     val selectedPhotoUri: Uri? get() = _selectedPhotoUri.value
     
+    private val _searchHistory = MutableStateFlow<List<String>>(emptyList())
+    val searchHistory: StateFlow<List<String>> = _searchHistory.asStateFlow()
+    
     init {
         loadContacts()
+        loadSearchHistory()
     }
     
     fun loadContacts(forceRefresh: Boolean = false) {
@@ -353,6 +359,16 @@ class ContactViewModel(
             searchQuery = query,
             filteredContacts = filterContacts(_uiState.value.contacts, query)
         )
+        
+        // Save to history only when query is not empty and user has finished typing
+        // (we'll call a separate method when search is submitted)
+    }
+    
+    fun submitSearch(query: String) {
+        if (query.isNotBlank()) {
+            searchHistoryManager.addSearchQuery(query.trim())
+            loadSearchHistory()
+        }
     }
     
     fun clearSearch() {
@@ -360,6 +376,24 @@ class ContactViewModel(
             searchQuery = "",
             filteredContacts = _uiState.value.contacts
         )
+    }
+    
+    fun loadSearchHistory() {
+        _searchHistory.value = searchHistoryManager.getSearchHistory()
+    }
+    
+    fun removeFromHistory(query: String) {
+        searchHistoryManager.removeSearchQuery(query)
+        loadSearchHistory()
+    }
+    
+    fun clearSearchHistory() {
+        searchHistoryManager.clearHistory()
+        loadSearchHistory()
+    }
+    
+    fun selectHistoryItem(query: String) {
+        updateSearchQuery(query)
     }
     
     private fun filterContacts(contacts: List<Contact>, query: String): List<Contact> {
