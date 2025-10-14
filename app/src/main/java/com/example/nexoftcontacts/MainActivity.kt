@@ -108,10 +108,12 @@ fun ContactsApp() {
     
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val operationState by viewModel.operationState.collectAsStateWithLifecycle()
+    val searchHistory by viewModel.searchHistory.collectAsStateWithLifecycle()
     
     ContactsScreen(
         contacts = uiState.filteredContacts,
         searchQuery = uiState.searchQuery,
+        searchHistory = searchHistory,
         isLoading = uiState.isLoading,
         errorMessage = uiState.errorMessage,
         showDeleteSuccess = operationState.isDeleteSuccess,
@@ -127,9 +129,29 @@ fun ContactsApp() {
         },
         onSearchQueryChange = { query ->
             viewModel.updateSearchQuery(query)
+            // Save to history when user types and hits enter or submits
+            if (query.isNotBlank()) {
+                viewModel.submitSearch(query)
+            }
         },
         onClearSearch = {
             viewModel.clearSearch()
+            viewModel.loadSearchHistory()
+        },
+        onSearchFocusChanged = { focused ->
+            if (focused) {
+                viewModel.loadSearchHistory()
+            }
+        },
+        onHistoryItemClick = { query ->
+            viewModel.selectHistoryItem(query)
+            viewModel.submitSearch(query)
+        },
+        onRemoveHistoryItem = { query ->
+            viewModel.removeFromHistory(query)
+        },
+        onClearSearchHistory = {
+            viewModel.clearSearchHistory()
         },
         onDeleteContact = { contactId ->
             viewModel.deleteContact(contactId, context)

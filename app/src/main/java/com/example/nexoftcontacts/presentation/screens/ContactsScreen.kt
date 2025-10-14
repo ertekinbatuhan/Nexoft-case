@@ -29,6 +29,7 @@ import com.example.nexoftcontacts.presentation.components.SearchBar
 import com.example.nexoftcontacts.presentation.components.NoSearchResults
 import com.example.nexoftcontacts.presentation.components.DeleteContactDialog
 import com.example.nexoftcontacts.presentation.components.DeleteSuccessSnackbar
+import com.example.nexoftcontacts.presentation.components.SearchHistory
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,6 +37,7 @@ import kotlinx.coroutines.launch
 fun ContactsScreen(
     contacts: List<com.example.nexoftcontacts.data.model.Contact>,
     searchQuery: String = "",
+    searchHistory: List<String> = emptyList(),
     isLoading: Boolean = false,
     errorMessage: String? = null,
     showDeleteSuccess: Boolean = false,
@@ -45,12 +47,17 @@ fun ContactsScreen(
     onErrorDismiss: () -> Unit = {},
     onSearchQueryChange: (String) -> Unit = {},
     onClearSearch: () -> Unit = {},
+    onSearchFocusChanged: (Boolean) -> Unit = {},
+    onHistoryItemClick: (String) -> Unit = {},
+    onRemoveHistoryItem: (String) -> Unit = {},
+    onClearSearchHistory: () -> Unit = {},
     onDeleteContact: (String) -> Unit = {},
     onDeleteSuccessDismiss: () -> Unit = {},
     onUpdateSuccessDismiss: () -> Unit = {},
     onContactClick: (com.example.nexoftcontacts.data.model.Contact) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    var isSearchFocused by remember { mutableStateOf(false) }
     
     Scaffold(
         topBar = {
@@ -95,11 +102,26 @@ fun ContactsScreen(
                     searchQuery = searchQuery,
                     onSearchQueryChange = onSearchQueryChange,
                     onClearSearch = onClearSearch,
+                    onFocusChanged = { focused ->
+                        isSearchFocused = focused
+                        onSearchFocusChanged(focused)
+                    },
                     placeholder = "Search by name",
                     modifier = Modifier.padding(top = 16.dp, bottom = 10.dp)
                 )
                 
-                if (contacts.isEmpty()) {
+                // Show search history when search is focused and empty
+                if (isSearchFocused && searchQuery.isEmpty() && searchHistory.isNotEmpty()) {
+                    SearchHistory(
+                        searchHistory = searchHistory,
+                        onHistoryItemClick = { query ->
+                            onHistoryItemClick(query)
+                        },
+                        onRemoveHistoryItem = onRemoveHistoryItem,
+                        onClearAll = onClearSearchHistory,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                } else if (contacts.isEmpty()) {
                     if (searchQuery.isNotBlank()) {
                         NoSearchResults(
                             modifier = Modifier.fillMaxSize()
@@ -111,13 +133,13 @@ fun ContactsScreen(
                         )
                     }
                 } else {
-                ContactList(
-                    contacts = contacts,
-                    searchQuery = searchQuery,
-                    onDeleteContact = onDeleteContact,
-                    onContactClick = onContactClick,
-                    modifier = Modifier.fillMaxSize()
-                )
+                    ContactList(
+                        contacts = contacts,
+                        searchQuery = searchQuery,
+                        onDeleteContact = onDeleteContact,
+                        onContactClick = onContactClick,
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
             
@@ -206,31 +228,20 @@ private fun ContactList(
     onContactClick: (com.example.nexoftcontacts.data.model.Contact) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val filteredContacts = if (searchQuery.isBlank()) {
-        contacts
-    } else {
-        contacts.filter { contact ->
-            contact.fullName.contains(searchQuery, ignoreCase = true) ||
-            (contact.phoneNumber?.contains(searchQuery) ?: false)
-        }
-    }
+    val isSearching = searchQuery.isNotBlank()
+    val sortedContacts = contacts.sortedBy { it.firstName?.lowercase() ?: "" }
     
-    val groupedContacts = filteredContacts
-        .sortedBy { it.firstName?.lowercase() ?: "" }
-        .groupBy { it.firstName?.firstOrNull()?.uppercaseChar() ?: '#' }
-    
-    println("DEBUG: Filtered contacts: ${filteredContacts.size}")
-    println("DEBUG: Grouped contacts: ${groupedContacts.keys}")
+    println("DEBUG: Contacts count: ${contacts.size}")
     
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        groupedContacts.forEach { (letter, contactsInGroup) ->
+        if (isSearching) {
+
             item {
-                ContactSectionCard(
-                    sectionLetter = letter.toString(),
-                    contacts = contactsInGroup,
+                SearchResultsCard(
+                    contacts = sortedContacts,
                     onDeleteContact = onDeleteContact,
                     onContactClick = onContactClick,
                     modifier = Modifier
@@ -238,10 +249,87 @@ private fun ContactList(
                         .padding(horizontal = 16.dp)
                 )
             }
+        } else {
+            // Show grouped contacts by letter when not searching
+            val groupedContacts = sortedContacts
+                .groupBy { it.firstName?.firstOrNull()?.uppercaseChar() ?: '#' }
+            
+            groupedContacts.forEach { (letter, contactsInGroup) ->
+                item {
+                    ContactSectionCard(
+                        sectionLetter = letter.toString(),
+                        contacts = contactsInGroup,
+                        onDeleteContact = onDeleteContact,
+                        onContactClick = onContactClick,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    )
+                }
+            }
         }
         
         item {
             Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+private fun SearchResultsCard(
+    contacts: List<com.example.nexoftcontacts.data.model.Contact>,
+    onDeleteContact: (String) -> Unit,
+    onContactClick: (com.example.nexoftcontacts.data.model.Contact) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 1.dp
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // "TOP NAME MATCH(ES)" header - singular/plural based on count
+            Text(
+                text = if (contacts.size == 1) "TOP NAME MATCH" else "TOP NAME MATCHES",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.W600,
+                color = Color(0xFF6B7280),
+                letterSpacing = 0.5.sp,
+                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+            )
+            
+            // Divider after header
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                thickness = 0.5.dp,
+                color = Color(0xFFE5E5E5)
+            )
+            
+            // All search results in one list
+            contacts.forEachIndexed { index, contact ->
+                ContactRow(
+                    contact = contact,
+                    onDeleteContact = onDeleteContact,
+                    onContactClick = onContactClick,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                
+                // Add divider between contacts (except for the last one)
+                if (index < contacts.size - 1) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        thickness = 0.5.dp,
+                        color = Color(0xFFE5E5E5)
+                    )
+                }
+            }
         }
     }
 }
