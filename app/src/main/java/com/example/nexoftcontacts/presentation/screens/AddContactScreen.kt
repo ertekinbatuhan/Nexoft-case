@@ -1,4 +1,4 @@
-package com.example.nexoftcontacts.presentation.components
+package com.example.nexoftcontacts.presentation.screens
 
 import android.net.Uri
 import androidx.compose.foundation.Image
@@ -31,7 +31,7 @@ import com.example.nexoftcontacts.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddContactBottomSheet(
+fun AddContactScreen(
     selectedPhotoUri: Uri? = null,
     onDismiss: () -> Unit,
     onSave: (firstName: String, lastName: String, phoneNumber: String) -> Unit,

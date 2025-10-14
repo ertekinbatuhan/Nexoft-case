@@ -24,7 +24,7 @@ import coil.compose.SubcomposeAsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ContactListScreen(
+fun ContactsScreen(
     contacts: List<com.example.nexoftcontacts.data.model.Contact>,
     onAddContactClick: () -> Unit,
     modifier: Modifier = Modifier

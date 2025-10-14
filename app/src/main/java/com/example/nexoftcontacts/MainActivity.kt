@@ -12,8 +12,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nexoftcontacts.data.repository.PhotoRepositoryImpl
 import com.example.nexoftcontacts.domain.usecase.PhotoPickerUseCase
-import com.example.nexoftcontacts.presentation.components.AddContactBottomSheet
-import com.example.nexoftcontacts.presentation.screens.ContactListScreen
+import com.example.nexoftcontacts.presentation.screens.AddContactScreen
+import com.example.nexoftcontacts.presentation.screens.ContactSuccessScreen
+import com.example.nexoftcontacts.presentation.screens.ContactsScreen
 import com.example.nexoftcontacts.presentation.viewmodel.ContactViewModel
 import com.example.nexoftcontacts.ui.theme.NexoftContactsTheme
 
@@ -37,6 +38,7 @@ fun ContactsApp() {
     val viewModel: ContactViewModel = viewModel { ContactViewModel(photoPickerUseCase) }
     
     var showAddContactSheet by remember { mutableStateOf(false) }
+    var showSuccessScreen by remember { mutableStateOf(false) }
     
     // Camera launcher
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -61,7 +63,7 @@ fun ContactsApp() {
         photoRepository.setGalleryLauncher(galleryLauncher)
     }
     
-    ContactListScreen(
+    ContactsScreen(
         contacts = viewModel.contacts,
         onAddContactClick = {
             showAddContactSheet = true
@@ -69,7 +71,7 @@ fun ContactsApp() {
     )
     
     if (showAddContactSheet) {
-        AddContactBottomSheet(
+        AddContactScreen(
             selectedPhotoUri = viewModel.selectedPhotoUri,
             onDismiss = {
                 showAddContactSheet = false
@@ -82,12 +84,22 @@ fun ContactsApp() {
                     phoneNumber = phoneNumber
                 )
                 showAddContactSheet = false
+                showSuccessScreen = true
             },
             onCameraClick = {
                 viewModel.capturePhotoFromCamera()
             },
             onGalleryClick = {
                 viewModel.selectPhotoFromGallery()
+            }
+        )
+    }
+    
+    // Success Screen
+    if (showSuccessScreen) {
+        ContactSuccessScreen(
+            onDismiss = {
+                showSuccessScreen = false
             }
         )
     }
