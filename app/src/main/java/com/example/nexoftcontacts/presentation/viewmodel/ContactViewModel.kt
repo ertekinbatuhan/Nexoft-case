@@ -233,6 +233,80 @@ class ContactViewModel(
         }
     }
     
+    // Update contact with individual parameters
+    fun updateContact(contactId: String, firstName: String, lastName: String, phoneNumber: String, context: Context? = null) {
+        viewModelScope.launch {
+            _operationState.value = _operationState.value.copy(isLoading = true, errorMessage = null)
+            
+            try {
+                var imageUrl: String? = null
+                
+                // Eğer yeni fotoğraf seçildiyse yükle
+                _selectedPhotoUri.value?.let { uri ->
+                    if (context != null) {
+                        val imageFile = FileUtils.uriToFile(context, uri)
+                        
+                        if (imageFile != null) {
+                            val repository = ContactRepositoryImpl()
+                            repository.uploadImage(imageFile)
+                                .onSuccess { uploadedUrl ->
+                                    imageUrl = uploadedUrl
+                                }
+                                .onFailure { exception ->
+                                    imageUrl = null
+                                }
+                        } else {
+                            imageUrl = null
+                        }
+                    } else {
+                        imageUrl = null
+                    }
+                }
+                
+                // Eğer yeni fotoğraf yoksa mevcut contact'ın fotoğrafını koru
+                val repository = ContactRepositoryImpl()
+                if (imageUrl == null) {
+                    // Mevcut contact'ı al ve fotoğrafını koru
+                    val currentContact = _uiState.value.contacts.find { it.id == contactId }
+                    imageUrl = currentContact?.photoUri
+                }
+                
+                val contact = Contact(
+                    id = contactId,
+                    firstName = firstName,
+                    lastName = lastName,
+                    phoneNumber = phoneNumber,
+                    photoUri = imageUrl,
+                    isDeviceContact = false
+                )
+                
+                updateContactUseCase(contact)
+                    .onSuccess { updatedContact ->
+                        _operationState.value = _operationState.value.copy(
+                            isLoading = false,
+                            isSuccess = false,  // Don't show success screen for updates
+                            errorMessage = null
+                        )
+                        clearSelectedPhoto()
+                        loadContacts()
+                    }
+                    .onFailure { exception ->
+                        _operationState.value = _operationState.value.copy(
+                            isLoading = false,
+                            isSuccess = false,
+                            errorMessage = exception.message ?: "Failed to update contact"
+                        )
+                    }
+            } catch (e: Exception) {
+                _operationState.value = _operationState.value.copy(
+                    isLoading = false,
+                    isSuccess = false,
+                    errorMessage = e.message ?: "An error occurred"
+                )
+            }
+        }
+    }
+    
     // Delete contact
     fun deleteContact(contactId: String) {
         viewModelScope.launch {

@@ -16,8 +16,10 @@ import com.example.nexoftcontacts.domain.usecase.PhotoPickerUseCase
 import com.example.nexoftcontacts.presentation.screens.AddContactScreen
 import com.example.nexoftcontacts.presentation.screens.ContactSuccessScreen
 import com.example.nexoftcontacts.presentation.screens.ContactsScreen
+import com.example.nexoftcontacts.presentation.screens.ContactDetailsScreen
 import com.example.nexoftcontacts.presentation.viewmodel.ContactViewModel
 import com.example.nexoftcontacts.ui.theme.NexoftContactsTheme
+import com.example.nexoftcontacts.data.model.Contact
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +41,7 @@ fun ContactsApp() {
     val viewModel: ContactViewModel = viewModel { ContactViewModel(photoPickerUseCase) }
     
     var showAddContactSheet by remember { mutableStateOf(false) }
+    var selectedContact by remember { mutableStateOf<Contact?>(null) }
     
     // Camera launcher
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -92,6 +95,9 @@ fun ContactsApp() {
         },
         onDeleteSuccessDismiss = {
             viewModel.clearDeleteSuccess()
+        },
+        onContactClick = { contact ->
+            selectedContact = contact
         }
     )
     
@@ -126,6 +132,41 @@ fun ContactsApp() {
         ContactSuccessScreen(
             onDismiss = {
                 viewModel.clearOperationState()
+            }
+        )
+    }
+    
+    // Contact Details Screen
+    selectedContact?.let { contact ->
+        ContactDetailsScreen(
+            contact = contact,
+            selectedPhotoUri = viewModel.selectedPhotoUri,
+            onDismiss = {
+                selectedContact = null
+                viewModel.clearSelectedPhoto()
+            },
+            onSaveToPhone = {
+
+            },
+            onUpdateContact = { contactId, firstName, lastName, phoneNumber ->
+                viewModel.updateContact(
+                    contactId = contactId,
+                    firstName = firstName,
+                    lastName = lastName,
+                    phoneNumber = phoneNumber,
+                    context = context
+                )
+                selectedContact = null
+            },
+            onDeleteContact = { contactId ->
+                viewModel.deleteContact(contactId)
+                selectedContact = null
+            },
+            onChangePhoto = {
+                viewModel.selectPhotoFromGallery()
+            },
+            onClearSelectedPhoto = {
+                viewModel.clearSelectedPhoto()
             }
         )
     }

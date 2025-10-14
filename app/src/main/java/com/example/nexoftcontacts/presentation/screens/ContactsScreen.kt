@@ -46,6 +46,7 @@ fun ContactsScreen(
     onClearSearch: () -> Unit = {},
     onDeleteContact: (String) -> Unit = {},
     onDeleteSuccessDismiss: () -> Unit = {},
+    onContactClick: (com.example.nexoftcontacts.data.model.Contact) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     
@@ -108,12 +109,13 @@ fun ContactsScreen(
                         )
                     }
                 } else {
-                    ContactList(
-                        contacts = contacts,
-                        searchQuery = searchQuery,
-                        onDeleteContact = onDeleteContact,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                ContactList(
+                    contacts = contacts,
+                    searchQuery = searchQuery,
+                    onDeleteContact = onDeleteContact,
+                    onContactClick = onContactClick,
+                    modifier = Modifier.fillMaxSize()
+                )
                 }
             }
             
@@ -192,6 +194,7 @@ private fun ContactList(
     contacts: List<com.example.nexoftcontacts.data.model.Contact>,
     searchQuery: String,
     onDeleteContact: (String) -> Unit,
+    onContactClick: (com.example.nexoftcontacts.data.model.Contact) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val filteredContacts = if (searchQuery.isBlank()) {
@@ -220,6 +223,7 @@ private fun ContactList(
                     sectionLetter = letter.toString(),
                     contacts = contactsInGroup,
                     onDeleteContact = onDeleteContact,
+                    onContactClick = onContactClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
@@ -238,6 +242,7 @@ private fun ContactSectionCard(
     sectionLetter: String,
     contacts: List<com.example.nexoftcontacts.data.model.Contact>,
     onDeleteContact: (String) -> Unit,
+    onContactClick: (com.example.nexoftcontacts.data.model.Contact) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -274,6 +279,7 @@ private fun ContactSectionCard(
                 ContactRow(
                     contact = contact,
                     onDeleteContact = onDeleteContact,
+                    onContactClick = onContactClick,
                     modifier = Modifier.fillMaxWidth()
                 )
                 
@@ -295,6 +301,7 @@ private fun ContactSectionCard(
 private fun ContactRow(
     contact: com.example.nexoftcontacts.data.model.Contact,
     onDeleteContact: (String) -> Unit,
+    onContactClick: (com.example.nexoftcontacts.data.model.Contact) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -355,6 +362,7 @@ private fun ContactRow(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clickable { onContactClick(contact) }
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
