@@ -295,9 +295,9 @@ private fun SearchResultsCard(
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            // "TOP NAME MATCHES" header
+            // "TOP NAME MATCH(ES)" header - singular/plural based on count
             Text(
-                text = "TOP NAME MATCHES",
+                text = if (contacts.size == 1) "TOP NAME MATCH" else "TOP NAME MATCHES",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.W600,
                 color = Color(0xFF6B7280),
