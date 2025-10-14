@@ -20,6 +20,10 @@ import com.example.nexoftcontacts.presentation.screens.ContactDetailsScreen
 import com.example.nexoftcontacts.presentation.viewmodel.ContactViewModel
 import com.example.nexoftcontacts.ui.theme.NexoftContactsTheme
 import com.example.nexoftcontacts.data.model.Contact
+import com.example.nexoftcontacts.utils.ContactsHelper
+import android.Manifest
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,10 +42,46 @@ fun ContactsApp() {
     val context = LocalContext.current
     val photoRepository = remember { PhotoRepositoryImpl(context) }
     val photoPickerUseCase = remember { PhotoPickerUseCase(photoRepository) }
-    val viewModel: ContactViewModel = viewModel { ContactViewModel(photoPickerUseCase) }
+    val viewModel: ContactViewModel = viewModel { ContactViewModel(context, photoPickerUseCase) }
+    val coroutineScope = rememberCoroutineScope()
     
     var showAddContactSheet by remember { mutableStateOf(false) }
     var selectedContact by remember { mutableStateOf<Contact?>(null) }
+    var contactToSave by remember { mutableStateOf<Contact?>(null) }
+    var isSavedToPhone by remember { mutableStateOf<Map<String, Boolean>>(emptyMap()) }
+    
+    // Check saved status when contact is selected
+    LaunchedEffect(selectedContact?.id) {
+        selectedContact?.id?.let { contactId ->
+            val isSaved = ContactsHelper.isContactSavedToPhone(context, contactId)
+            isSavedToPhone = isSavedToPhone + (contactId to isSaved)
+        }
+    }
+    
+    // Contacts permission launcher
+    val contactsPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            contactToSave?.let { contact ->
+                coroutineScope.launch {
+                    val success = ContactsHelper.saveContactToPhone(
+                        context,
+                        contact.firstName,
+                        contact.lastName,
+                        contact.phoneNumber
+                    )
+                    if (success) {
+                        contact.id?.let { 
+                            ContactsHelper.markContactAsSaved(context, it)
+                            isSavedToPhone = isSavedToPhone + (it to true)
+                        }
+                    }
+                }
+            }
+            contactToSave = null
+        }
+    }
     
     // Camera launcher
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -91,7 +131,7 @@ fun ContactsApp() {
             viewModel.clearSearch()
         },
         onDeleteContact = { contactId ->
-            viewModel.deleteContact(contactId)
+            viewModel.deleteContact(contactId, context)
         },
         onDeleteSuccessDismiss = {
             viewModel.clearDeleteSuccess()
@@ -141,12 +181,14 @@ fun ContactsApp() {
         ContactDetailsScreen(
             contact = contact,
             selectedPhotoUri = viewModel.selectedPhotoUri,
+            isSavedToPhone = isSavedToPhone[contact.id] ?: false,
             onDismiss = {
                 selectedContact = null
                 viewModel.clearSelectedPhoto()
             },
             onSaveToPhone = {
-
+                contactToSave = contact
+                contactsPermissionLauncher.launch(Manifest.permission.WRITE_CONTACTS)
             },
             onUpdateContact = { contactId, firstName, lastName, phoneNumber ->
                 viewModel.updateContact(
@@ -159,7 +201,7 @@ fun ContactsApp() {
                 selectedContact = null
             },
             onDeleteContact = { contactId ->
-                viewModel.deleteContact(contactId)
+                viewModel.deleteContact(contactId, context)
                 selectedContact = null
             },
             onChangePhoto = {

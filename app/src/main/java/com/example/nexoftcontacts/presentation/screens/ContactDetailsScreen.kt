@@ -34,6 +34,7 @@ import com.example.nexoftcontacts.presentation.components.DeleteContactDialog
 fun ContactDetailsScreen(
     contact: Contact,
     selectedPhotoUri: Uri?,
+    isSavedToPhone: Boolean = false,
     onDismiss: () -> Unit,
     onSaveToPhone: () -> Unit,
     onUpdateContact: (String, String, String, String) -> Unit,
@@ -42,7 +43,6 @@ fun ContactDetailsScreen(
     onClearSelectedPhoto: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    var isSavedToPhone by remember { mutableStateOf(false) }
     var showSuccessMessage by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
     var isEditMode by remember { mutableStateOf(false) }
@@ -340,7 +340,6 @@ fun ContactDetailsScreen(
                     OutlinedButton(
                         onClick = {
                             if (!isSavedToPhone) {
-                                isSavedToPhone = true
                                 showSuccessMessage = true
                                 onSaveToPhone()
                             }

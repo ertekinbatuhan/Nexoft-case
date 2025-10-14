@@ -1,5 +1,9 @@
 package com.example.nexoftcontacts.data.repository
 
+import android.content.Context
+import com.example.nexoftcontacts.data.local.ContactDatabase
+import com.example.nexoftcontacts.data.mapper.toDomain
+import com.example.nexoftcontacts.data.mapper.toEntity
 import com.example.nexoftcontacts.data.model.Contact
 import com.example.nexoftcontacts.data.remote.ApiException
 import com.example.nexoftcontacts.data.remote.ContactApiService
@@ -13,26 +17,61 @@ import java.io.File
 import com.example.nexoftcontacts.domain.repository.ContactRepository
 
 class ContactRepositoryImpl(
+    private val context: Context,
     private val apiService: ContactApiService = NetworkModule.contactApiService
 ) : ContactRepository {
     
-    override suspend fun getAllContacts(): Result<List<Contact>> {
+    private val database by lazy { ContactDatabase.getDatabase(context) }
+    private val contactDao by lazy { database.contactDao() }
+    
+    private var cacheTimestamp: Long = 0
+    private val CACHE_TIMEOUT = 5 * 60 * 1000L
+    
+    override suspend fun getAllContacts(forceRefresh: Boolean): Result<List<Contact>> {
         return try {
-            val response = apiService.getAllContacts(NetworkModule.API_KEY)
-            if (response.isSuccessful) {
-                val apiResponse = response.body()
-                if (apiResponse?.success == true && apiResponse.data != null) {
-                    val contacts = apiResponse.data.users.map { it.toDomainModel() }
-                    Result.success(contacts)
+            val shouldFetchFromApi = forceRefresh || 
+                                     System.currentTimeMillis() - cacheTimestamp > CACHE_TIMEOUT
+            
+            if (shouldFetchFromApi) {
+                val response = apiService.getAllContacts(NetworkModule.API_KEY)
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    if (apiResponse?.success == true && apiResponse.data != null) {
+                        val contacts = apiResponse.data.users.map { it.toDomainModel() }
+                        
+                        contactDao.clearCache()
+                        contactDao.insertContacts(contacts.map { it.toEntity() })
+                        cacheTimestamp = System.currentTimeMillis()
+                        
+                        Result.success(contacts)
+                    } else {
+                        val errorMessage = apiResponse?.messages?.joinToString(", ")
+                        val cachedContacts = contactDao.getAllContacts().map { it.toDomain() }
+                        if (cachedContacts.isNotEmpty()) {
+                            Result.success(cachedContacts)
+                        } else {
+                            Result.failure(ApiException.Unknown(errorMessage ?: "Failed to fetch contacts"))
+                        }
+                    }
                 } else {
-                    val errorMessage = apiResponse?.messages?.joinToString(", ")
-                    Result.failure(ApiException.Unknown(errorMessage ?: "Failed to fetch contacts"))
+                    val cachedContacts = contactDao.getAllContacts().map { it.toDomain() }
+                    if (cachedContacts.isNotEmpty()) {
+                        Result.success(cachedContacts)
+                    } else {
+                        Result.failure(ApiException.fromHttpCode(response.code(), "Failed to fetch contacts"))
+                    }
                 }
             } else {
-                Result.failure(ApiException.fromHttpCode(response.code(), "Failed to fetch contacts"))
+                val cachedContacts = contactDao.getAllContacts().map { it.toDomain() }
+                Result.success(cachedContacts)
             }
         } catch (e: Exception) {
-            Result.failure(ApiException.NetworkError(e.message ?: "Network error occurred"))
+            try {
+                val cachedContacts = contactDao.getAllContacts().map { it.toDomain() }
+                Result.success(cachedContacts)
+            } catch (cacheError: Exception) {
+                Result.failure(ApiException.NetworkError(e.message ?: "Network error occurred"))
+            }
         }
     }
     
@@ -92,6 +131,9 @@ class ContactRepositoryImpl(
                 val apiResponse = response.body()
                 if (apiResponse?.success == true && apiResponse.data != null) {
                     val createdContact = apiResponse.data.toDomainModel()
+                    
+                    contactDao.insertContact(createdContact.toEntity())
+                    
                     Result.success(createdContact)
                 } else {
                     val errorMessage = apiResponse?.messages?.joinToString(", ")
@@ -114,6 +156,9 @@ class ContactRepositoryImpl(
                 val apiResponse = response.body()
                 if (apiResponse?.success == true && apiResponse.data != null) {
                     val updatedContact = apiResponse.data.toDomainModel()
+                    
+                    contactDao.updateContact(updatedContact.toEntity())
+                    
                     Result.success(updatedContact)
                 } else {
                     val errorMessage = apiResponse?.messages?.joinToString(", ")
@@ -133,6 +178,9 @@ class ContactRepositoryImpl(
             if (response.isSuccessful) {
                 val apiResponse = response.body()
                 if (apiResponse?.success == true) {
+                    
+                    contactDao.deleteContactById(id)
+                    
                     Result.success(Unit)
                 } else {
                     val errorMessage = apiResponse?.messages?.joinToString(", ")
