@@ -1,8 +1,10 @@
 package com.example.nexoftcontacts.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation.weight
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -118,7 +120,7 @@ val Typography = Typography(
 object DropdownTextStyles {
     val menuItem = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight(500),
         fontSize = 14.sp
     )
 }
@@ -126,41 +128,41 @@ object DropdownTextStyles {
 object CustomTextStyles {
     val editContactTitle = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight(weight = 700),
         fontSize = 20.sp,
         color = TextPrimary
     )
     
     val changePhotoButton = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight(weight = 700),
         fontSize = 16.sp,
         color = Primary
     )
     
     val saveButton = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight(weight = 600),
         fontSize = 16.sp
     )
     
     val infoMessage = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight(weight = 500),
         fontSize = 12.sp,
         color = TextMuted
     )
     
     val successMessage = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight(700),
         fontSize = 14.sp,
         color = Success
     )
     
     val successScreenTitle = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight(weight = 700),
         fontSize = 24.sp,
         color = TextPrimary,
         textAlign = TextAlign.Center
@@ -168,7 +170,7 @@ object CustomTextStyles {
     
     val successScreenSubtitle = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight(weight = 500),
         fontSize = 16.sp,
         color = TextSecondary,
         textAlign = TextAlign.Center
@@ -176,14 +178,14 @@ object CustomTextStyles {
     
     val searchHistoryTitle = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight(weight = 600),
         fontSize = 14.sp,
         color = TextPlaceholder
     )
     
     val clearAllButton = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
+        fontWeight = FontWeight(weight = 400),
         fontSize = 12.sp,
         color = Primary,
         textDecoration = TextDecoration.Underline
@@ -191,7 +193,7 @@ object CustomTextStyles {
     
     val searchHistoryItem = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
+        fontWeight = FontWeight(weight = 400),
         fontSize = 14.sp,
         color = TextTertiary
     )
