@@ -195,4 +195,11 @@ object CustomTextStyles {
         fontSize = 14.sp,
         color = TextTertiary
     )
+    
+    val errorMessage = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Bold,
+        fontSize = 14.sp,
+        color = Error
+    )
 }

@@ -17,6 +17,7 @@ import com.example.nexoftcontacts.presentation.screens.AddContactScreen
 import com.example.nexoftcontacts.presentation.screens.ContactSuccessScreen
 import com.example.nexoftcontacts.presentation.screens.ContactsScreen
 import com.example.nexoftcontacts.presentation.screens.ContactDetailsScreen
+import com.example.nexoftcontacts.presentation.components.ErrorSnackbar
 import com.example.nexoftcontacts.presentation.viewmodel.ContactViewModel
 import com.example.nexoftcontacts.ui.theme.NexoftContactsTheme
 import com.example.nexoftcontacts.data.model.Contact
@@ -203,6 +204,24 @@ fun ContactsApp() {
             }
         )
     }
+    
+    // Error Snackbar - show when operation fails (Add, Update, Delete)
+    ErrorSnackbar(
+        showSnackbar = operationState.errorMessage != null,
+        onDismiss = {
+            viewModel.clearOperationState()
+        },
+        message = operationState.errorMessage ?: "An error occurred"
+    )
+    
+    // Error Snackbar - show when loading/refresh fails
+    ErrorSnackbar(
+        showSnackbar = uiState.errorMessage != null,
+        onDismiss = {
+            viewModel.clearErrorMessage()
+        },
+        message = uiState.errorMessage ?: "An error occurred"
+    )
     
     // Contact Details Screen
     selectedContact?.let { contact ->
