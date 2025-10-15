@@ -68,7 +68,8 @@ fun ChangePhotoSheet(
                     onPhotoClick = {
                         showPhotoPickerSheet = true
                     },
-                    isEditMode = true
+                    isEditMode = true,
+                    initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
                 )
                 
                 Spacer(modifier = Modifier.height(Dimens.spaceLarge))

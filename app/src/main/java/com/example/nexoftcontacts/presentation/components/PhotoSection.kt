@@ -29,7 +29,8 @@ fun PhotoSection(
     onPhotoClick: () -> Unit,
     modifier: Modifier = Modifier,
     isEditMode: Boolean = false,
-    photoSize: Dp = Dimens.iconHuge
+    photoSize: Dp = Dimens.iconHuge,
+    initial: String? = null
 ) {
     val context = LocalContext.current
     
@@ -57,15 +58,25 @@ fun PhotoSection(
                 )
             }
         } else {
-            // Show default frame
-            Image(
-                painter = painterResource(id = R.drawable.frame),
-                contentDescription = "image description",
-                contentScale = ContentScale.None,
-                modifier = Modifier
-                    .size(photoSize)
-                    .clickable { onPhotoClick() }
-            )
+            // Show initial component or default frame
+            if (initial != null) {
+                ContactInitialComponent(
+                    initial = initial,
+                    modifier = Modifier
+                        .size(photoSize)
+                        .clickable { onPhotoClick() },
+                    isLargeAvatar = true
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.frame),
+                    contentDescription = "image description",
+                    contentScale = ContentScale.None,
+                    modifier = Modifier
+                        .size(photoSize)
+                        .clickable { onPhotoClick() }
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(if (isEditMode) Dimens.spaceSmall else Dimens.spaceSmall2))
