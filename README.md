@@ -71,11 +71,11 @@ This project follows **Clean Architecture** principles with clear separation of 
 ```
 app/
 ├── data/
-│   ├── local/                    # Local database (Room)
+│   ├── local/                   # Local database (Room)
 │   │   ├── ContactDao.kt        # Database operations
 │   │   ├── ContactDatabase.kt   # Room database
 │   │   └── ContactEntity.kt     # Database entities
-│   ├── remote/                   # Network layer
+│   ├── remote/                  # Network layer
 │   │   ├── ContactApiService.kt # Retrofit API interface
 │   │   ├── NetworkModule.kt     # Retrofit configuration
 │   │   ├── dto/                 # Data Transfer Objects
