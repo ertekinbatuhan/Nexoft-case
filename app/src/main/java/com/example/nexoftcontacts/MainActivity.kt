@@ -9,10 +9,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.nexoftcontacts.data.repository.PhotoRepositoryImpl
-import com.example.nexoftcontacts.domain.usecase.PhotoPickerUseCase
 import com.example.nexoftcontacts.presentation.screens.AddContactScreen
 import com.example.nexoftcontacts.presentation.screens.ContactSuccessScreen
 import com.example.nexoftcontacts.presentation.screens.ContactsScreen
@@ -25,8 +23,11 @@ import com.example.nexoftcontacts.data.model.Contact
 import com.example.nexoftcontacts.utils.ContactsHelper
 import android.Manifest
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.hilt.navigation.compose.hiltViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,11 +41,12 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ContactsApp() {
+fun ContactsApp(
+    viewModel: ContactViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
-    val photoRepository = remember { PhotoRepositoryImpl(context) }
-    val photoPickerUseCase = remember { PhotoPickerUseCase(photoRepository) }
-    val viewModel: ContactViewModel = viewModel { ContactViewModel(context, photoPickerUseCase) }
+    // Explicitly cast to PhotoRepositoryImpl to access launcher setters
+    val photoRepository: PhotoRepositoryImpl = viewModel.photoRepository
     val coroutineScope = rememberCoroutineScope()
     
     var showAddContactSheet by remember { mutableStateOf(false) }
@@ -99,6 +101,7 @@ fun ContactsApp() {
         viewModel.onEvent(ContactEvent.SetSelectedPhoto(uri))
     }
     
+    // Set launchers to the injected PhotoRepository instance
     LaunchedEffect(Unit) {
         photoRepository.setCameraLauncher(cameraLauncher)
         photoRepository.setGalleryLauncher(galleryLauncher)

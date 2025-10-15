@@ -27,6 +27,14 @@ class ContactRepositoryImpl(
     private var cacheTimestamp: Long = 0
     private val CACHE_TIMEOUT = 5 * 60 * 1000L
     
+    override suspend fun getCachedContacts(): List<Contact> {
+        return try {
+            contactDao.getAllContacts().map { it.toDomain() }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+    
     override suspend fun getAllContacts(forceRefresh: Boolean): Result<List<Contact>> {
         return try {
             val shouldFetchFromApi = forceRefresh || 

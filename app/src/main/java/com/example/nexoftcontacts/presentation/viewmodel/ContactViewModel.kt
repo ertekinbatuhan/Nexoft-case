@@ -6,8 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nexoftcontacts.data.model.Contact
+import com.example.nexoftcontacts.data.repository.PhotoRepositoryImpl
 import com.example.nexoftcontacts.domain.repository.ContactRepository
-import com.example.nexoftcontacts.data.repository.ContactRepositoryImpl
 import com.example.nexoftcontacts.utils.FileUtils
 import com.example.nexoftcontacts.utils.SearchHistoryManager
 import com.example.nexoftcontacts.utils.ContactsHelper
@@ -19,25 +19,28 @@ import com.example.nexoftcontacts.domain.usecase.PhotoPickerUseCase
 import com.example.nexoftcontacts.presentation.event.ContactEvent
 import com.example.nexoftcontacts.presentation.state.ContactOperationState
 import com.example.nexoftcontacts.presentation.state.ContactUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import java.util.UUID
+import javax.inject.Inject
 
-class ContactViewModel(
-    private val context: Context,
+@HiltViewModel
+class ContactViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val repository: ContactRepository,
+    private val getContactsUseCase: GetContactsUseCase,
+    private val createContactUseCase: CreateContactUseCase,
+    private val updateContactUseCase: UpdateContactUseCase,
+    private val deleteContactUseCase: DeleteContactUseCase,
     private val photoPickerUseCase: PhotoPickerUseCase,
-    repository: ContactRepository? = null
+    val photoRepository: PhotoRepositoryImpl
 ) : ViewModel() {
     
-    private val repository: ContactRepository = repository ?: ContactRepositoryImpl(context)
-    private val getContactsUseCase = GetContactsUseCase(this.repository)
-    private val createContactUseCase = CreateContactUseCase(this.repository)
-    private val updateContactUseCase = UpdateContactUseCase(this.repository)
-    private val deleteContactUseCase = DeleteContactUseCase(this.repository)
     private val searchHistoryManager = SearchHistoryManager(context)
     
     private val _uiState = MutableStateFlow(ContactUiState())
@@ -57,6 +60,7 @@ class ContactViewModel(
     val searchHistory: StateFlow<List<String>> = _searchHistory.asStateFlow()
     
     init {
+        loadCachedContacts()
         loadContacts()
         loadSearchHistory()
     }
@@ -170,6 +174,19 @@ class ContactViewModel(
             isRefreshing = false,
             errorMessage = null
         )
+    }
+    
+    private fun loadCachedContacts() {
+        viewModelScope.launch {
+            try {
+                val cachedContacts = repository.getCachedContacts()
+                if (cachedContacts.isNotEmpty()) {
+                    updateContactsWithDeviceStatus(cachedContacts)
+                }
+            } catch (e: Exception) {
+                // Ignore cache errors, will load from API
+            }
+        }
     }
     
     private fun loadContacts(forceRefresh: Boolean = false) {
