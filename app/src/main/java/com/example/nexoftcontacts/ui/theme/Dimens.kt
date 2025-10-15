@@ -10,10 +10,12 @@ object Dimens {
     val radiusLarge: Dp = 16.dp
     val radiusXLarge: Dp = 28.dp
     val radiusRound: Dp = 50.dp
+    val radiusXXLarge: Dp = 64.dp // For fully rounded buttons
     
     // Spacing
     val spaceXSmall: Dp = 4.dp
     val spaceSmall: Dp = 8.dp
+    val spaceSmall3: Dp = 10.dp
     val spaceSmall2: Dp = 12.dp
     val spaceMedium: Dp = 16.dp
     val spaceLarge: Dp = 24.dp
@@ -39,9 +41,16 @@ object Dimens {
     // Button Heights
     val buttonHeight: Dp = 56.dp
     
+    // Border Width
+    val borderWidth: Dp = 1.dp
+    
     // Elevation
     val elevationSmall: Dp = 1.dp
     val elevationMedium: Dp = 4.dp
     val elevationLarge: Dp = 16.dp
     val elevationXLarge: Dp = 24.dp
+    
+    // Contact Details Screen
+    val spacerHeight19: Dp = 19.dp
+    val modalHeightFraction: Float = 0.9f
 }

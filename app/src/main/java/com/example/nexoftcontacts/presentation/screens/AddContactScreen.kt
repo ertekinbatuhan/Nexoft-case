@@ -28,15 +28,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import com.example.nexoftcontacts.R
+import com.example.nexoftcontacts.presentation.components.PhotoPickerBottomSheet
+import com.example.nexoftcontacts.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddContactScreen(
     selectedPhotoUri: Uri? = null,
-    initialFirstName: String? = null,
-    initialLastName: String? = null,
-    initialPhoneNumber: String? = null,
-    isEditMode: Boolean = false,
     onDismiss: () -> Unit,
     onSave: (firstName: String, lastName: String, phoneNumber: String) -> Unit,
     onCameraClick: () -> Unit = {},
@@ -44,29 +42,30 @@ fun AddContactScreen(
     isLoading: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    var firstName by remember { mutableStateOf(initialFirstName ?: "") }
-    var lastName by remember { mutableStateOf(initialLastName ?: "") }
-    var phoneNumber by remember { mutableStateOf(initialPhoneNumber ?: "") }
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var phoneNumber by remember { mutableStateOf("") }
     var showPhotoPickerSheet by remember { mutableStateOf(false) }
-    
-    val isDoneEnabled = firstName.isNotBlank() && lastName.isNotBlank() && phoneNumber.isNotBlank() && !isLoading
+
+    val isDoneEnabled =
+        firstName.isNotBlank() && lastName.isNotBlank() && phoneNumber.isNotBlank() && !isLoading
     val bottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
-    
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = bottomSheetState,
-        containerColor = Color.White,
+        containerColor = BackgroundLight,
         modifier = modifier,
         dragHandle = null
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.9f)
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 32.dp)
+                .fillMaxHeight(Dimens.modalHeightFraction)
+                .padding(horizontal = Dimens.spaceLarge)
+                .padding(bottom = Dimens.spaceXLarge)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -76,61 +75,42 @@ fun AddContactScreen(
                 TextButton(onClick = onDismiss) {
                     Text(
                         text = "Cancel",
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight(500),
-                            color = Color(0xFF0075FF)
-                        ),
-                        modifier = Modifier
-                            .width(51.dp)
-                            .height(20.dp)
+                        style = MaterialTheme.typography.displaySmall
                     )
                 }
-                
+
                 Text(
-                    text = if (isEditMode) "Edit Contact" else "New Contact",
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight(800),
-                        color = Color(0xFF202020)
-                    ),
-                    modifier = Modifier
-                        .width(126.dp)
-                        .height(25.dp)
+                    text = "New Contact",
+                    style = MaterialTheme.typography.headlineLarge
                 )
-                
-                        TextButton(
-                            onClick = {
-                                if (isDoneEnabled) {
-                                    onSave(firstName, lastName, phoneNumber)
-                                }
-                            },
-                            enabled = isDoneEnabled
-                        ) {
-                            if (isLoading) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(16.dp),
-                                    strokeWidth = 2.dp,
-                                    color = Color(0xFF0075FF)
-                                )
-                            } else {
-                                Text(
-                                    text = "Done",
-                                    style = TextStyle(
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight(700),
-                                        color = if (isDoneEnabled) Color(0xFF0075FF) else Color.Gray
-                                    ),
-                                    modifier = Modifier
-                                        .width(41.dp)
-                                        .height(20.dp)
-                                )
-                            }
+
+                TextButton(
+                    onClick = {
+                        if (isDoneEnabled) {
+                            onSave(firstName, lastName, phoneNumber)
                         }
+                    },
+                    enabled = isDoneEnabled
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(Dimens.spaceMedium),
+                            strokeWidth = 2.dp,
+                            color = Primary
+                        )
+                    } else {
+                        Text(
+                            text = "Done",
+                            style = MaterialTheme.typography.displayMedium.copy(
+                                color = if (isDoneEnabled) Primary else Disabled
+                            )
+                        )
+                    }
+                }
             }
-            
-            Spacer(modifier = Modifier.height(24.dp))
-            
+
+            Spacer(modifier = Modifier.height(Dimens.spaceLarge))
+
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -139,10 +119,8 @@ fun AddContactScreen(
                     // Show selected photo
                     Box(
                         modifier = Modifier
-                            .padding(1.83465.dp)
-                            .width(96.dp)
-                            .height(95.90683.dp)
-                            .clickable { 
+                            .size(Dimens.iconHuge)
+                            .clickable {
                                 showPhotoPickerSheet = true
                             }
                     ) {
@@ -162,226 +140,111 @@ fun AddContactScreen(
                         contentDescription = "image description",
                         contentScale = ContentScale.None,
                         modifier = Modifier
-                            .padding(1.83465.dp)
-                            .width(96.dp)
-                            .height(95.90683.dp)
-                            .clickable { 
+                            .size(Dimens.iconHuge)
+                            .clickable {
                                 showPhotoPickerSheet = true
                             }
                     )
                 }
-                
-                Spacer(modifier = Modifier.height(12.dp))
-                
+
+                Spacer(modifier = Modifier.height(Dimens.spaceSmall))
+
                 Text(
                     text = if (selectedPhotoUri != null) "Change Photo" else "Add Photo",
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight(700),
-                        color = Color(0xFF0075FF),
-                        textAlign = TextAlign.Center
-                    ),
+                    style = CustomTextStyles.changePhotoButton,
+                    textAlign = TextAlign.Center,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .clickable { 
+                        .padding(horizontal = Dimens.spaceMedium)
+                        .clickable {
                             showPhotoPickerSheet = true
                         }
                 )
             }
-            
-            Spacer(modifier = Modifier.height(32.dp))
-            
-            Column(
-                modifier = Modifier.padding(horizontal = 16.dp)
-            ) {
-                OutlinedTextField(
-                    value = firstName,
-                    onValueChange = { firstName = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = {
-                        Text(
-                            text = "First Name",
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight(600),
-                                color = Color(0xFF888888)
-                            )
-                        )
-                    },
-                    shape = RoundedCornerShape(8.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color.LightGray,
-                        focusedBorderColor = Color(0xFF0075FF)
-                    ),
-                    singleLine = true
-                )
-                
-                Spacer(modifier = Modifier.height(12.dp))
-                
-                OutlinedTextField(
-                    value = lastName,
-                    onValueChange = { lastName = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = {
-                        Text(
-                            text = "Last Name",
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight(600),
-                                color = Color(0xFF888888)
-                            )
-                        )
-                    },
-                    shape = RoundedCornerShape(8.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color.LightGray,
-                        focusedBorderColor = Color(0xFF0075FF)
-                    ),
-                    singleLine = true
-                )
-                
-                Spacer(modifier = Modifier.height(12.dp))
-                
-                OutlinedTextField(
-                    value = phoneNumber,
-                    onValueChange = { newValue ->
-                        if (newValue.all { it.isDigit() || it == '+' || it == '-' || it == ' ' || it == '(' || it == ')' }) {
-                            phoneNumber = newValue
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = {
-                        Text(
-                            text = "Phone Number",
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight(600),
-                                color = Color(0xFF888888)
-                            )
-                        )
-                    },
-                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
-                        keyboardType = KeyboardType.Text
-                    ),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color.LightGray,
-                        focusedBorderColor = Color(0xFF0075FF)
-                    ),
-                    singleLine = true
-                )
-            }
+
+            Spacer(modifier = Modifier.height(Dimens.spaceXLarge))
+
+            // TextFields
+            OutlinedTextField(
+                value = firstName,
+                onValueChange = { firstName = it },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = {
+                    Text(
+                        text = "First Name",
+                        style = MaterialTheme.typography.displayLarge
+                    )
+                },
+                shape = RoundedCornerShape(Dimens.radiusSmall),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = BorderLight,
+                    focusedBorderColor = Primary
+                ),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(Dimens.spaceSmall2))
+
+            OutlinedTextField(
+                value = lastName,
+                onValueChange = { lastName = it },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = {
+                    Text(
+                        text = "Last Name",
+                        style = MaterialTheme.typography.displayLarge
+                    )
+                },
+                shape = RoundedCornerShape(Dimens.radiusSmall),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = BorderLight,
+                    focusedBorderColor = Primary
+                ),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(Dimens.spaceSmall2))
+
+            Spacer(modifier = Modifier.height(Dimens.spaceSmall2))
+
+            OutlinedTextField(
+                value = phoneNumber,
+                onValueChange = { newValue ->
+                    if (newValue.all { it.isDigit() || it == '+' || it == '-' || it == ' ' || it == '(' || it == ')' }) {
+                        phoneNumber = newValue
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = {
+                    Text(
+                        text = "Phone Number",
+                        style = MaterialTheme.typography.displayLarge
+                    )
+                },
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                    keyboardType = KeyboardType.Text
+                ),
+                shape = RoundedCornerShape(Dimens.radiusSmall),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = BorderLight,
+                    focusedBorderColor = Primary
+                ),
+                singleLine = true
+            )
         }
     }
-    
+
     // Photo Picker Bottom Sheet
     if (showPhotoPickerSheet) {
         PhotoPickerBottomSheet(
             onDismiss = { showPhotoPickerSheet = false },
-            onCameraClick = { 
+            onCameraClick = {
                 onCameraClick()
                 showPhotoPickerSheet = false
             },
-            onGalleryClick = { 
+            onGalleryClick = {
                 onGalleryClick()
                 showPhotoPickerSheet = false
             }
         )
     }
 }
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun PhotoPickerBottomSheet(
-    onDismiss: () -> Unit,
-    onCameraClick: () -> Unit,
-    onGalleryClick: () -> Unit
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        containerColor = Color.White
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(top = 24.dp, bottom = 24.dp)
-        ) {
-            // Camera Button
-            OutlinedButton(
-                onClick = onCameraClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(64.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color(0xFF0F172A)
-                ),
-                border = BorderStroke(
-                    width = 1.dp,
-                    color = Color(0xFF0F172A)
-                ),
-                contentPadding = PaddingValues(10.dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.camera),
-                    contentDescription = "Camera",
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = "Camera",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Gallery Button
-            OutlinedButton(
-                onClick = onGalleryClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(64.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color(0xFF0F172A)
-                ),
-                border = BorderStroke(
-                    width = 1.dp,
-                    color = Color(0xFF0F172A)
-                ),
-                contentPadding = PaddingValues(10.dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.gallery),
-                    contentDescription = "Gallery",
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = "Gallery",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            // Cancel Button
-            TextButton(
-                onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = "Cancel",
-                    color = Color(0xFF0075FF),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        }
-    }
-}
-

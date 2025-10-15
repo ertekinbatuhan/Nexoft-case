@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.DpOffset
 import coil.compose.SubcomposeAsyncImage
 import com.example.nexoftcontacts.data.model.Contact
 import com.example.nexoftcontacts.presentation.components.DeleteContactDialog
+import com.example.nexoftcontacts.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,7 +60,7 @@ fun ContactDetailsScreen(
     var editedFirstName by remember { mutableStateOf(contact.firstName ?: "") }
     var editedLastName by remember { mutableStateOf(contact.lastName ?: "") }
     var editedPhoneNumber by remember { mutableStateOf(contact.phoneNumber ?: "") }
-    var dominantColor by remember { mutableStateOf(Color(0xFF0075FF)) }
+    var dominantColor by remember { mutableStateOf(Primary) }
     
     val context = LocalContext.current
     
@@ -101,21 +102,21 @@ fun ContactDetailsScreen(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.White,
+        containerColor = White,
         dragHandle = null,
         modifier = modifier
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.9f)
+                .fillMaxHeight(Dimens.modalHeightFraction)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 32.dp)
+                    .padding(horizontal = Dimens.spaceMedium)
+                    .padding(bottom = Dimens.spaceXLarge)
             ) {
                 // Top section - Edit mode or View mode
                 if (isEditMode) {
@@ -123,7 +124,7 @@ fun ContactDetailsScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 16.dp),
+                            .padding(top = Dimens.spaceMedium),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -138,21 +139,13 @@ fun ContactDetailsScreen(
                         ) {
                             Text(
                                 text = "Cancel",
-                                style = TextStyle(
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight(500),
-                                    color = Color(0xFF0075FF)
-                                )
+                                style = MaterialTheme.typography.displaySmall
                             )
                         }
 
                         Text(
                             text = "Edit Contact",
-                            style = TextStyle(
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight(700),
-                                color = Color(0xFF202020)
-                            )
+                            style = MaterialTheme.typography.headlineLarge
                         )
 
                         TextButton(
@@ -170,11 +163,7 @@ fun ContactDetailsScreen(
                         ) {
                             Text(
                                 text = "Done",
-                                style = TextStyle(
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight(700),
-                                    color = Color(0xFF0075FF)
-                                )
+                                style = MaterialTheme.typography.displayMedium
                             )
                         }
                     }
@@ -183,7 +172,7 @@ fun ContactDetailsScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 30.dp)
+                            .padding(top = Dimens.spaceXLarge)
                     ) {
                         Box(
                             modifier = Modifier.align(Alignment.TopEnd)
@@ -194,16 +183,16 @@ fun ContactDetailsScreen(
                                 Icon(
                                     imageVector = Icons.Default.MoreVert,
                                     contentDescription = "Menu",
-                                    tint = Color.Black
+                                    tint = IconBlack
                                 )
                             }
 
                             DropdownMenu(
                                 expanded = showMenu,
                                 onDismissRequest = { showMenu = false },
-                                offset = DpOffset(x = 0.dp, y = (-8).dp),
+                                offset = DpOffset(x = 0.dp, y = -Dimens.spaceSmall),
                                 modifier = Modifier
-                                    .background(Color.White)
+                                    .background(White)
                             ) {
                                 // Edit option
                                 DropdownMenuItem(
@@ -215,14 +204,17 @@ fun ContactDetailsScreen(
                                         ) {
                                             Text(
                                                 text = "Edit",
-                                                fontSize = 16.sp,
-                                                color = Color(0xFF202020)
+                                                style = DropdownTextStyles.menuItem.copy(
+                                                    color = TextPrimary
+                                                )
                                             )
                                             Icon(
                                                 painter = painterResource(id = R.drawable.edit),
                                                 contentDescription = null,
-                                                tint = Color(0xFF202020),
-                                                modifier = Modifier.size(20.dp)
+                                                tint = TextPrimary,
+                                                modifier = Modifier
+                                                    .size(Dimens.iconLarge)
+                                                    .padding(Dimens.spaceXSmall)
                                             )
                                         }
                                     },
@@ -242,14 +234,17 @@ fun ContactDetailsScreen(
                                         ) {
                                             Text(
                                                 text = "Delete",
-                                                fontSize = 16.sp,
-                                                color = Color(0xFFFF0000)
+                                                style = DropdownTextStyles.menuItem.copy(
+                                                    color = Error
+                                                )
                                             )
                                             Icon(
                                                 painter = painterResource(id = R.drawable.delete),
                                                 contentDescription = null,
-                                                tint = Color(0xFFFF0000),
-                                                modifier = Modifier.size(20.dp)
+                                                tint = Error,
+                                                modifier = Modifier
+                                                    .size(Dimens.iconLarge)
+                                                    .padding(start = 3.dp, top = 3.dp, end = 3.dp, bottom = 3.dp)
                                             )
                                         }
                                     },
@@ -263,12 +258,12 @@ fun ContactDetailsScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(19.dp))
+                Spacer(modifier = Modifier.height(Dimens.spacerHeight19))
 
                 // Profile Photo
                 Box(
                     modifier = Modifier
-                        .size(150.dp)
+                        .size(Dimens.avatarLarge)
                         .align(Alignment.CenterHorizontally)
                 ) {
                     val photoUri = selectedPhotoUri ?: contact.photoUri?.let { Uri.parse(it) }
@@ -279,9 +274,9 @@ fun ContactDetailsScreen(
                             contentDescription = "Profile photo",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
-                                .size(150.dp)
+                                .size(Dimens.avatarLarge)
                                 .shadow(
-                                    elevation = 16.dp,
+                                    elevation = Dimens.elevationLarge,
                                     shape = CircleShape,
                                     ambientColor = dominantColor.copy(alpha = 0.5f),
                                     spotColor = dominantColor.copy(alpha = 0.5f)
@@ -290,25 +285,25 @@ fun ContactDetailsScreen(
                             loading = {
                                 ContactInitialComponent(
                                     initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                                    modifier = Modifier.size(150.dp)
+                                    modifier = Modifier.size(Dimens.avatarLarge)
                                 )
                             },
                             error = {
                                 ContactInitialComponent(
                                     initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                                    modifier = Modifier.size(150.dp)
+                                    modifier = Modifier.size(Dimens.avatarLarge)
                                 )
                             }
                         )
                     } else {
                         ContactInitialComponent(
                             initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                            modifier = Modifier.size(150.dp)
+                            modifier = Modifier.size(Dimens.avatarLarge)
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Dimens.spaceSmall))
 
                 // Change Photo Button
                 TextButton(
@@ -323,16 +318,11 @@ fun ContactDetailsScreen(
                 ) {
                     Text(
                         text = "Change Photo",
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight(700),
-                            color = Color(0xFF0075FF),
-                            textAlign = TextAlign.Center
-                        )
+                        style = CustomTextStyles.changePhotoButton
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(Dimens.spaceLarge))
 
                 // First Name Field
                 OutlinedTextField(
@@ -341,13 +331,13 @@ fun ContactDetailsScreen(
                     readOnly = !isEditMode,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color(0xFFE5E5E5),
-                        focusedBorderColor = Color(0xFF0075FF)
+                        unfocusedBorderColor = BorderLight,
+                        focusedBorderColor = Primary
                     ),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(Dimens.radiusSmall)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(Dimens.spaceMedium))
 
                 // Last Name Field
                 OutlinedTextField(
@@ -356,13 +346,13 @@ fun ContactDetailsScreen(
                     readOnly = !isEditMode,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color(0xFFE5E5E5),
-                        focusedBorderColor = Color(0xFF0075FF)
+                        unfocusedBorderColor = BorderLight,
+                        focusedBorderColor = Primary
                     ),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(Dimens.radiusSmall)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(Dimens.spaceMedium))
 
                 // Phone Number Field
                 OutlinedTextField(
@@ -371,14 +361,14 @@ fun ContactDetailsScreen(
                     readOnly = !isEditMode,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color(0xFFE5E5E5),
-                        focusedBorderColor = Color(0xFF0075FF)
+                        unfocusedBorderColor = BorderLight,
+                        focusedBorderColor = Primary
                     ),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(Dimens.radiusSmall)
                 )
 
                 if (!isEditMode) {
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(Dimens.spaceXLarge))
 
                     // Save to Phone Button
                     OutlinedButton(
@@ -391,17 +381,15 @@ fun ContactDetailsScreen(
                         enabled = !isSavedToPhone,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(56.dp),
-                        shape = RoundedCornerShape(28.dp),
+                            .height(Dimens.buttonHeight),
+                        shape = RoundedCornerShape(Dimens.radiusXXLarge),
                         colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = if (isSavedToPhone) Color(0xFFD1D1D1) else Color(
-                                0xFF202020
-                            ),
-                            disabledContentColor = Color(0xFFD1D1D1)
+                            contentColor = if (isSavedToPhone) Disabled else TextPrimary,
+                            disabledContentColor = Disabled
                         ),
                         border = androidx.compose.foundation.BorderStroke(
-                            1.dp,
-                            if (isSavedToPhone) Color(0xFFE7E7E7) else Color(0xFF202020)
+                            Dimens.borderWidth,
+                            if (isSavedToPhone) DisabledBorder else TextPrimary
                         )
                     ) {
                         Icon(
@@ -409,23 +397,21 @@ fun ContactDetailsScreen(
                                 id = if (isSavedToPhone) R.drawable.savecontactfull else R.drawable.savecontact
                             ),
                             contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                            tint = if (isSavedToPhone) Color(0xFFD1D1D1) else Color(0xFF202020)
+                            modifier = Modifier.size(Dimens.iconMedium),
+                            tint = if (isSavedToPhone) Disabled else TextPrimary
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(Dimens.spaceSmall))
                         Text(
                             text = "Save to My Phone Contact",
-                            style = TextStyle(
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight(600),
-                                color = if (isSavedToPhone) Color(0xFFD1D1D1) else Color(0xFF202020)
+                            style = CustomTextStyles.saveButton.copy(
+                                color = if (isSavedToPhone) Disabled else TextPrimary
                             )
                         )
                     }
 
                     // Info message when saved
                     if (isSavedToPhone) {
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(Dimens.spaceSmall))
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -435,18 +421,13 @@ fun ContactDetailsScreen(
                             Image(
                                 painter = painterResource(id = R.drawable.info),
                                 contentDescription = null,
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(Dimens.iconLarge),
                                 contentScale = ContentScale.None
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(Dimens.spaceXSmall))
                             Text(
                                 text = "This contact is already saved your phone.",
-                                style = TextStyle(
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight(500),
-                                    color = Color(0xFF6D6D6D),
-                                    textAlign = TextAlign.Center
-                                )
+                                style = CustomTextStyles.infoMessage
                             )
                         }
                     }
@@ -467,37 +448,35 @@ fun ContactDetailsScreen(
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = 32.dp, start = 16.dp, end = 16.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            color = Color.White,
-                            shadowElevation = 4.dp
+                                .padding(bottom = Dimens.spaceXLarge, start = Dimens.spaceMedium, end = Dimens.spaceMedium),
+                            shape = RoundedCornerShape(Dimens.radiusMedium),
+                            color = White,
+                            shadowElevation = Dimens.elevationMedium
                         ) {
                             Row(
-                                modifier = Modifier.padding(16.dp),
+                                modifier = Modifier.padding(Dimens.spaceMedium),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                horizontalArrangement = Arrangement.spacedBy(Dimens.spaceSmall2)
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .size(24.dp)
+                                        .size(Dimens.iconLarge)
                                         .background(
-                                            color = Color(0xFF12B76A),
-                                            shape = RoundedCornerShape(12.dp)
+                                            color = Success,
+                                            shape = RoundedCornerShape(Dimens.radiusMedium)
                                         ),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.g443),
                                         contentDescription = null,
-                                        tint = Color.White,
-                                        modifier = Modifier.size(16.dp)
+                                        tint = White,
+                                        modifier = Modifier.size(Dimens.iconSmall)
                                     )
                                 }
                                 Text(
                                     text = "User is added yo your phone!",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF12B76A)
+                                    style = CustomTextStyles.successMessage
                                 )
                             }
                         }
@@ -559,26 +538,26 @@ private fun ChangePhotoSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.White,
+        containerColor = White,
         dragHandle = null
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.9f)
+                .fillMaxHeight(Dimens.modalHeightFraction)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 32.dp)
+                    .padding(horizontal = Dimens.spaceMedium)
+                    .padding(bottom = Dimens.spaceXLarge)
             ) {
                 // Header - Without title, just Cancel and Done buttons
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 16.dp),
+                        .padding(top = Dimens.spaceMedium),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -587,11 +566,7 @@ private fun ChangePhotoSheet(
                     ) {
                         Text(
                             text = "Cancel",
-                            style = TextStyle(
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight(500),
-                                color = Color(0xFF0075FF)
-                            )
+                            style = MaterialTheme.typography.displaySmall
                         )
                     }
                     
@@ -609,21 +584,17 @@ private fun ChangePhotoSheet(
                     ) {
                         Text(
                             text = "Done",
-                            style = TextStyle(
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight(700),
-                                color = Color(0xFF0075FF)
-                            )
+                            style = MaterialTheme.typography.displayMedium
                         )
                     }
                 }
                 
-                Spacer(modifier = Modifier.height(19.dp))
+                Spacer(modifier = Modifier.height(Dimens.spacerHeight19))
                 
                 // Profile Photo
                 Box(
                     modifier = Modifier
-                        .size(150.dp)
+                        .size(Dimens.avatarLarge)
                         .align(Alignment.CenterHorizontally)
                 ) {
                     val photoUri = if (selectedPhotoUri != null) {
@@ -638,30 +609,30 @@ private fun ChangePhotoSheet(
                             contentDescription = "Profile photo",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
-                                .size(150.dp)
+                                .size(Dimens.avatarLarge)
                                 .clip(CircleShape),
                             loading = {
                                 ContactInitialComponent(
                                     initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                                    modifier = Modifier.size(150.dp)
+                                    modifier = Modifier.size(Dimens.avatarLarge)
                                 )
                             },
                             error = {
                                 ContactInitialComponent(
                                     initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                                    modifier = Modifier.size(150.dp)
+                                    modifier = Modifier.size(Dimens.avatarLarge)
                                 )
                             }
                         )
                     } else {
                         ContactInitialComponent(
                             initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                            modifier = Modifier.size(150.dp)
+                            modifier = Modifier.size(Dimens.avatarLarge)
                         )
                     }
                 }
                 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Dimens.spaceSmall))
                 
                 // Change Photo Button
                 TextButton(
@@ -670,16 +641,11 @@ private fun ChangePhotoSheet(
                 ) {
                     Text(
                         text = "Change Photo",
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight(700),
-                            color = Color(0xFF0075FF),
-                            textAlign = TextAlign.Center
-                        )
+                        style = CustomTextStyles.changePhotoButton
                     )
                 }
                 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(Dimens.spaceLarge))
                 
                 // First Name Field
                 OutlinedTextField(
@@ -687,13 +653,13 @@ private fun ChangePhotoSheet(
                     onValueChange = { editedFirstName = it },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color(0xFFE5E5E5),
-                        focusedBorderColor = Color(0xFF0075FF)
+                        unfocusedBorderColor = BorderLight,
+                        focusedBorderColor = Primary
                     ),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(Dimens.radiusSmall)
                 )
                 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(Dimens.spaceMedium))
                 
                 // Last Name Field
                 OutlinedTextField(
@@ -701,13 +667,13 @@ private fun ChangePhotoSheet(
                     onValueChange = { editedLastName = it },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color(0xFFE5E5E5),
-                        focusedBorderColor = Color(0xFF0075FF)
+                        unfocusedBorderColor = BorderLight,
+                        focusedBorderColor = Primary
                     ),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(Dimens.radiusSmall)
                 )
                 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(Dimens.spaceMedium))
                 
                 // Phone Number Field
                 OutlinedTextField(
@@ -715,10 +681,10 @@ private fun ChangePhotoSheet(
                     onValueChange = { editedPhoneNumber = it },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color(0xFFE5E5E5),
-                        focusedBorderColor = Color(0xFF0075FF)
+                        unfocusedBorderColor = BorderLight,
+                        focusedBorderColor = Primary
                     ),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(Dimens.radiusSmall)
                 )
             }
         }
@@ -733,14 +699,14 @@ private fun ContactInitialComponent(
     Surface(
         modifier = modifier,
         shape = CircleShape,
-        color = Color(0xFF0075FF)
+        color = Primary
     ) {
         Box(
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = initial,
-                color = Color.White,
+                color = White,
                 fontSize = 60.sp,
                 fontWeight = FontWeight.SemiBold
             )

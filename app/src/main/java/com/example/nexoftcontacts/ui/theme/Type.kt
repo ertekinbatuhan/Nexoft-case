@@ -16,6 +16,14 @@ val Typography = Typography(
         color = TextPrimary
     ),
     
+    // "New Contact" başlığı (20sp, W800)
+    headlineLarge = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.W800,
+        fontSize = 20.sp,
+        color = TextPrimary
+    ),
+    
     // "No Contacts" başlığı (20sp, SemiBold)
     titleMedium = TextStyle(
         fontFamily = FontFamily.Default,
@@ -73,12 +81,12 @@ val Typography = Typography(
         color = TextSecondary
     ),
     
-    // "Create New Contact" butonu (16sp, Medium)
+    // "Create New Contact" butonu ve Camera/Gallery button text (16sp, W600, TextPrimary)
     labelLarge = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.W600,
         fontSize = 16.sp,
-        color = Primary
+        color = TextPrimary
     ),
     
     // "Search by name" placeholder (14sp, W600)
@@ -89,10 +97,86 @@ val Typography = Typography(
         color = TextPlaceholder
     ),
     
+    // TextField placeholder "First Name", "Last Name" (14sp, W600, TextFieldPlaceholder)
+    displayLarge = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.W600,
+        fontSize = 14.sp,
+        color = TextFieldPlaceholder
+    ),
+    
     // Dialog button text "No", "Yes" (16sp, SemiBold)
     labelSmall = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.SemiBold,
         fontSize = 16.sp
+    ),
+    
+    // "Cancel" button text (16sp, Medium, Primary)
+    displaySmall = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp,
+        color = Primary
+    ),
+    
+    // "Done" button text (16sp, Bold, Primary)
+    displayMedium = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Bold,
+        fontSize = 16.sp,
+        color = Primary
     )
 )
+
+// Custom text styles for dropdown menu items
+object DropdownTextStyles {
+    // Dropdown menu items "Edit", "Delete" (14sp, Medium)
+    val menuItem = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp
+    )
+}
+
+// Custom text styles for other components
+object CustomTextStyles {
+    // "Edit Contact" başlığı (20sp, Bold/W700, TextPrimary)
+    val editContactTitle = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp,
+        color = TextPrimary
+    )
+    
+    // "Change Photo" button text (16sp, Bold, Primary)
+    val changePhotoButton = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Bold,
+        fontSize = 16.sp,
+        color = Primary
+    )
+    
+    // "Save to My Phone Contact" button text (16sp, SemiBold)
+    val saveButton = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 16.sp
+    )
+    
+    // Info message text (12sp, Medium, TextMuted)
+    val infoMessage = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Medium,
+        fontSize = 12.sp,
+        color = TextMuted
+    )
+    
+    // Success message text (14sp, Bold, Success)
+    val successMessage = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Bold,
+        fontSize = 14.sp,
+        color = Success
+    )
+}

@@ -14,6 +14,7 @@ val TextDark = Color(0xFF0F172A)         // Koyu metinler
 val TextGray = Color(0xFF6B7280)         // Gri metinler (telefon numarası vb.)
 val TextMuted = Color(0xFF6D6D6D)        // Soluk metinler
 val TextPlaceholder = Color(0xFFB0B0B0)  // Placeholder metinler (Search by name)
+val TextFieldPlaceholder = Color(0xFF888888)  // TextField placeholder metinler
 
 // Border Colors (Çerçeve renkleri)
 val BorderLight = Color(0xFFE5E5E5)      // Açık çerçeve
@@ -35,3 +36,7 @@ val Error = Color(0xFFFF0000)            // Hata kırmızısı
 // Swipe Actions (Kaydırma aksiyonları)
 val SwipeEdit = Color(0xFF1EA7FF)        // Düzenleme mavi
 val SwipeDelete = Color(0xFFFF0000)      // Silme kırmızısı
+
+// Contact Details Screen (Kişi detay ekranı)
+val IconBlack = Color(0xFF000000)        // Menü ikonu rengi
+val White = Color(0xFFFFFFFF)            // Beyaz arkaplan
