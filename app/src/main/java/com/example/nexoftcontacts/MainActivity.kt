@@ -7,6 +7,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -16,16 +18,24 @@ import com.example.nexoftcontacts.presentation.screens.ContactSuccessScreen
 import com.example.nexoftcontacts.presentation.screens.ContactsScreen
 import com.example.nexoftcontacts.presentation.screens.ContactDetailsScreen
 import com.example.nexoftcontacts.presentation.components.ErrorSnackbar
+import com.example.nexoftcontacts.presentation.components.SuccessSnackbar
 import com.example.nexoftcontacts.presentation.event.ContactEvent
 import com.example.nexoftcontacts.presentation.viewmodel.ContactViewModel
 import com.example.nexoftcontacts.ui.theme.NexoftContactsTheme
 import com.example.nexoftcontacts.data.model.Contact
 import com.example.nexoftcontacts.utils.ContactsHelper
 import android.Manifest
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.nexoftcontacts.ui.theme.BackgroundLight
+import com.example.nexoftcontacts.ui.theme.Primary
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -51,8 +61,10 @@ fun ContactsApp(
     
     var showAddContactSheet by remember { mutableStateOf(false) }
     var selectedContact by remember { mutableStateOf<Contact?>(null) }
-    var contactToSave by remember { mutableStateOf<Contact?>(null) }
     var isSavedToPhone by remember { mutableStateOf<Map<String, Boolean>>(emptyMap()) }
+    var showPermissionDialog by remember { mutableStateOf(false) }
+    var permissionDialogMessage by remember { mutableStateOf("") }
+    var onSaveSuccess: (() -> Unit)? by remember { mutableStateOf(null) }
     
     LaunchedEffect(selectedContact?.id) {
         selectedContact?.id?.let { contactId ->
@@ -65,24 +77,46 @@ fun ContactsApp(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            contactToSave?.let { contact ->
-                coroutineScope.launch {
-                    val success = ContactsHelper.saveContactToPhone(
-                        context,
-                        contact.firstName,
-                        contact.lastName,
-                        contact.phoneNumber
-                    )
+            selectedContact?.let { contact ->
+                coroutineScope.launch(Dispatchers.Main) {
+                    val success = withContext(Dispatchers.IO) {
+                        ContactsHelper.saveContactToPhone(
+                            context,
+                            contact.firstName,
+                            contact.lastName,
+                            contact.phoneNumber
+                        )
+                    }
                     if (success) {
-                        contact.id?.let { 
-                            ContactsHelper.markContactAsSaved(context, it)
-                            isSavedToPhone = isSavedToPhone + (it to true)
+                        contact.id?.let { contactId ->
+                            ContactsHelper.markContactAsSaved(context, contactId)
+                            isSavedToPhone = isSavedToPhone + (contactId to true)
                             viewModel.onEvent(ContactEvent.RefreshContacts)
+                            // İzin verdikten sonra kaydettik - snackbar'ı tetikle
+                            onSaveSuccess?.invoke()
+                            onSaveSuccess = null
                         }
                     }
                 }
             }
-            contactToSave = null
+        } else {
+            permissionDialogMessage = "Contacts permission is required to save contact to your phone. Please enable it in your device settings."
+            showPermissionDialog = true
+            onSaveSuccess = null
+        }
+    }
+    
+    // Camera permission launcher
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Permission granted, trigger camera
+            viewModel.onEvent(ContactEvent.OpenCamera(context))
+        } else {
+            // Permission denied, show explanation
+            permissionDialogMessage = "Camera permission is required to take photos. Please enable it in your device settings."
+            showPermissionDialog = true
         }
     }
     
@@ -183,7 +217,8 @@ fun ContactsApp(
             },
             isLoading = operationState.isLoading,
             onCameraClick = {
-                viewModel.onEvent(ContactEvent.OpenCamera(context))
+                // Request camera permission first
+                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
             },
             onGalleryClick = {
                 viewModel.onEvent(ContactEvent.OpenGallery(context))
@@ -224,9 +259,45 @@ fun ContactsApp(
                 selectedContact = null
                 viewModel.onEvent(ContactEvent.ClearSelectedPhoto)
             },
-            onSaveToPhone = {
-                contactToSave = contact
-                contactsPermissionLauncher.launch(Manifest.permission.WRITE_CONTACTS)
+            onSaveToPhone = { onSuccess ->
+                if (isSavedToPhone[contact.id] != true) {
+                    // Callback'i sakla
+                    onSaveSuccess = onSuccess
+                    
+                    // İlk kez - izin isteyeceğiz
+                    coroutineScope.launch(Dispatchers.Main) {
+                        val hasPermission = withContext(Dispatchers.IO) {
+                            ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.WRITE_CONTACTS
+                            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                        }
+                        
+                        if (hasPermission) {
+                            // İzin var - direkt kaydet
+                            val success = withContext(Dispatchers.IO) {
+                                ContactsHelper.saveContactToPhone(
+                                    context,
+                                    contact.firstName,
+                                    contact.lastName,
+                                    contact.phoneNumber
+                                )
+                            }
+                            if (success) {
+                                contact.id?.let { contactId ->
+                                    ContactsHelper.markContactAsSaved(context, contactId)
+                                    isSavedToPhone = isSavedToPhone + (contactId to true)
+                                    viewModel.onEvent(ContactEvent.RefreshContacts)
+                                    onSuccess() // Snackbar göster
+                                    onSaveSuccess = null
+                                }
+                            }
+                        } else {
+                            // İzin yok - iste
+                            contactsPermissionLauncher.launch(Manifest.permission.WRITE_CONTACTS)
+                        }
+                    }
+                }
             },
             onUpdateContact = { contactId, firstName, lastName, phoneNumber ->
                 viewModel.onEvent(
@@ -250,6 +321,33 @@ fun ContactsApp(
             onClearSelectedPhoto = {
                 viewModel.onEvent(ContactEvent.ClearSelectedPhoto)
             }
+        )
+    }
+    
+    // Permission denied dialog
+    if (showPermissionDialog) {
+        AlertDialog(
+            onDismissRequest = { showPermissionDialog = false },
+            title = {
+                Text(
+                    text = "Permission Required",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            },
+            text = {
+                Text(
+                    text = permissionDialogMessage,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { showPermissionDialog = false }
+                ) {
+                    Text("OK", color = Primary)
+                }
+            },
+            containerColor = BackgroundLight
         )
     }
 }

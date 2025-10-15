@@ -25,18 +25,18 @@ fun ContactDetailsScreen(
     selectedPhotoUri: Uri?,
     isSavedToPhone: Boolean = false,
     onDismiss: () -> Unit,
-    onSaveToPhone: () -> Unit,
+    onSaveToPhone: (() -> Unit) -> Unit,
     onUpdateContact: (String, String, String, String) -> Unit,
     onDeleteContact: (String) -> Unit,
     onChangePhoto: () -> Unit,
     onClearSelectedPhoto: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    var showSuccessMessage by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
     var isEditMode by remember { mutableStateOf(false) }
     var showChangePhotoSheet by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showSuccessMessage by remember { mutableStateOf(false) }
     var editedFirstName by remember { mutableStateOf(contact.firstName ?: "") }
     var editedLastName by remember { mutableStateOf(contact.lastName ?: "") }
     var editedPhoneNumber by remember { mutableStateOf(contact.phoneNumber ?: "") }
@@ -168,35 +168,22 @@ fun ContactDetailsScreen(
                     SaveToPhoneSection(
                         isSavedToPhone = isSavedToPhone,
                         onSaveClick = {
-                            if (!isSavedToPhone) {
+                            onSaveToPhone {
                                 showSuccessMessage = true
-                                onSaveToPhone()
                             }
                         }
                     )
                 }
-
-                if (showSuccessMessage) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.BottomCenter
-                    ) {
-                        SuccessSnackbar(
-                            showSnackbar = showSuccessMessage,
-                            onDismiss = { showSuccessMessage = false },
-                            message = "User is added to your phone!"
-                        )
-                    }
-                }
             }
+            
+            // Success Snackbar - Inside the Box to be visible within ModalBottomSheet
+            SuccessSnackbar(
+                showSnackbar = showSuccessMessage,
+                onDismiss = { showSuccessMessage = false },
+                message = "Contact is saved to your phone!"
+            )
         }
     }
-    
-    SuccessSnackbar(
-        showSnackbar = showSuccessMessage,
-        onDismiss = { showSuccessMessage = false },
-        message = "User is added to your phone!"
-    )
     
     // Change Photo Sheet
     if (showChangePhotoSheet) {
