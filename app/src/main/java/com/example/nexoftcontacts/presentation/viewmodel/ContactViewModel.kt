@@ -21,6 +21,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import java.util.UUID
 
 class ContactViewModel(
@@ -43,6 +45,10 @@ class ContactViewModel(
     
     private val _selectedPhotoUri = mutableStateOf<Uri?>(null)
     val selectedPhotoUri: Uri? get() = _selectedPhotoUri.value
+    
+    // Debounce job for search history
+    private var searchDebounceJob: Job? = null
+    private val SEARCH_DEBOUNCE_DELAY = 1000L // 1 second
     
     private val _searchHistory = MutableStateFlow<List<String>>(emptyList())
     val searchHistory: StateFlow<List<String>> = _searchHistory.asStateFlow()
@@ -124,6 +130,16 @@ class ContactViewModel(
                 
                 _selectedPhotoUri.value?.let { uri ->
                     if (context != null) {
+                        // Validate image format first
+                        if (!FileUtils.isValidImageFormat(context, uri)) {
+                            _operationState.value = _operationState.value.copy(
+                                isLoading = false,
+                                isSuccess = false,
+                                errorMessage = "Only PNG and JPG image formats are allowed"
+                            )
+                            return@launch
+                        }
+                        
                         val imageFile = FileUtils.uriToFile(context, uri)
                         
                         if (imageFile != null) {
@@ -264,6 +280,16 @@ class ContactViewModel(
                 // Eğer yeni fotoğraf seçildiyse yükle
                 _selectedPhotoUri.value?.let { uri ->
                     if (context != null) {
+                        // Validate image format first
+                        if (!FileUtils.isValidImageFormat(context, uri)) {
+                            _operationState.value = _operationState.value.copy(
+                                isLoading = false,
+                                isSuccess = false,
+                                errorMessage = "Only PNG and JPG image formats are allowed"
+                            )
+                            return@launch
+                        }
+                        
                         val imageFile = FileUtils.uriToFile(context, uri)
                         
                         if (imageFile != null) {
@@ -379,11 +405,23 @@ class ContactViewModel(
             filteredContacts = filterContacts(_uiState.value.contacts, query)
         )
         
-        // Save to history only when query is not empty and user has finished typing
-        // (we'll call a separate method when search is submitted)
+        // Cancel previous debounce job
+        searchDebounceJob?.cancel()
+        
+        // Save to history after user stops typing (debounce)
+        if (query.isNotBlank()) {
+            searchDebounceJob = viewModelScope.launch {
+                delay(SEARCH_DEBOUNCE_DELAY)
+                searchHistoryManager.addSearchQuery(query.trim())
+                loadSearchHistory()
+            }
+        }
     }
     
     fun submitSearch(query: String) {
+        // Cancel debounce and save immediately
+        searchDebounceJob?.cancel()
+        
         if (query.isNotBlank()) {
             searchHistoryManager.addSearchQuery(query.trim())
             loadSearchHistory()

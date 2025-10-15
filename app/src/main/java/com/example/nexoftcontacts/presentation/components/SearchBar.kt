@@ -16,6 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.nexoftcontacts.R
+import com.example.nexoftcontacts.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,30 +33,33 @@ fun SearchBar(
         onValueChange = onSearchQueryChange,
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = Dimens.spaceMedium)
             .onFocusChanged { focusState ->
                 onFocusChanged(focusState.isFocused)
             },
         placeholder = {
             Text(
                 text = placeholder,
-                color = Color.Gray
+                style = MaterialTheme.typography.labelMedium
             )
         },
         leadingIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.searchbar),
                 contentDescription = "Search",
-                tint = Color(0xFF202020)
+                tint = TextPlaceholder,
+                modifier = Modifier
+                    .size(Dimens.iconMedium)
+                    .padding(end = Dimens.spaceSmall)
             )
         },
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(Dimens.radiusMedium),
         colors = OutlinedTextFieldDefaults.colors(
-            unfocusedBorderColor = Color.LightGray,
-            focusedBorderColor = Color(0xFF0075FF),
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
-            cursorColor = Color(0xFF0075FF)
+            unfocusedBorderColor = BorderLight,
+            focusedBorderColor = Primary,
+            focusedContainerColor = BackgroundLight,
+            unfocusedContainerColor = BackgroundLight,
+            cursorColor = Primary
         ),
         singleLine = true
     )

@@ -6,29 +6,70 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Set of Material typography styles to start with
+// Material3 Typography set customized with app styles
 val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
+    // "Contacts" başlığı (24sp, W800)
     titleLarge = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
+        fontWeight = FontWeight.W800,
+        fontSize = 24.sp,
+        color = TextPrimary
     ),
-    labelSmall = TextStyle(
+    
+    // "No Contacts" başlığı (20sp, SemiBold)
+    titleMedium = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 20.sp,
+        color = TextDark
+    ),
+    
+    // Bölüm harfleri "A", "B" (14sp, W600, TextPlaceholder)
+    titleSmall = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.W600,
+        fontSize = 14.sp,
+        color = TextPlaceholder
+    ),
+    
+    // Kişi isimleri - Liste (14sp, Bold)
+    bodyLarge = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Bold,
+        fontSize = 14.sp,
+        color = TextPrimary
+    ),
+    
+    // Telefon numaraları - Liste (12sp, Medium)
+    bodyMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
+        fontSize = 12.sp,
+        color = TextMuted
+    ),
+    
+    // "TOP NAME MATCHES" header (13sp, W600)
+    bodySmall = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.W600,
+        fontSize = 13.sp,
+        letterSpacing = 0.5.sp,
+        color = TextGray
+    ),
+    
+    // "Create New Contact" butonu (16sp, Medium)
+    labelLarge = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp,
+        color = Primary
+    ),
+    
+    // "Search by name" placeholder (14sp, W600)
+    labelMedium = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.W600,
+        fontSize = 14.sp,
+        color = TextPlaceholder
     )
-    */
 )

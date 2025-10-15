@@ -30,6 +30,7 @@ import com.example.nexoftcontacts.presentation.components.NoSearchResults
 import com.example.nexoftcontacts.presentation.components.DeleteContactDialog
 import com.example.nexoftcontacts.presentation.components.DeleteSuccessSnackbar
 import com.example.nexoftcontacts.presentation.components.SearchHistory
+import com.example.nexoftcontacts.ui.theme.*
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,32 +66,30 @@ fun ContactsScreen(
                 title = {
                     Text(
                         text = "Contacts",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.W800,
-                        color = Color(0xFF0F172A)
+                        style = MaterialTheme.typography.titleLarge
                     )
                 },
                 actions = {
                     IconButton(
                         onClick = onAddContactClick,
                         colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = Color(0xFF0075FF),
-                            contentColor = Color.White
+                            containerColor = Primary,
+                            contentColor = BackgroundLight
                         )
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = "Add Contact",
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(Dimens.iconLarge)
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFF6F6F6)
+                    containerColor = BackgroundLight
                 )
             )
         },
-        containerColor = Color(0xFFF6F6F6)
+        containerColor = BackgroundLight
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -168,38 +167,32 @@ private fun NoContactsEmptyState(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Surface(
-            modifier = Modifier.size(120.dp),
-            shape = CircleShape,
-            color = Color(0xFFE8E8E8)
+        Box(
+            modifier = Modifier
+                .size(120.dp)
+                .background(Primary, shape = CircleShape),
+            contentAlignment = Alignment.Center
         ) {
-            Box(
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null,
-                    modifier = Modifier.size(60.dp),
-                    tint = Color.White
-                )
-            }
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = null,
+                modifier = Modifier.size(60.dp),
+                tint = BackgroundLight
+            )
         }
         
         Spacer(modifier = Modifier.height(24.dp))
         
         Text(
             text = "No Contacts",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color.Black
+            style = MaterialTheme.typography.titleMedium
         )
         
         Spacer(modifier = Modifier.height(8.dp))
         
         Text(
             text = "Contacts you've added will appear here.",
-            fontSize = 14.sp,
-            color = Color.Gray,
+            style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center
         )
         
@@ -208,13 +201,12 @@ private fun NoContactsEmptyState(
         TextButton(
             onClick = onCreateNewContactClick,
             colors = ButtonDefaults.textButtonColors(
-                contentColor = Color(0xFF0075FF)
+                contentColor = Primary
             )
         ) {
             Text(
                 text = "Create New Contact",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
+                style = MaterialTheme.typography.labelLarge
             )
         }
     }
@@ -285,12 +277,12 @@ private fun SearchResultsCard(
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = BackgroundLight
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 1.dp
+            defaultElevation = Dimens.elevationSmall
         ),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(Dimens.radiusMedium)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -298,18 +290,15 @@ private fun SearchResultsCard(
             // "TOP NAME MATCH(ES)" header - singular/plural based on count
             Text(
                 text = if (contacts.size == 1) "TOP NAME MATCH" else "TOP NAME MATCHES",
-                fontSize = 13.sp,
-                fontWeight = FontWeight.W600,
-                color = Color(0xFF6B7280),
-                letterSpacing = 0.5.sp,
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(start = Dimens.spaceMedium, top = Dimens.spaceMedium, bottom = Dimens.spaceSmall)
             )
             
             // Divider after header
             HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 16.dp),
+                modifier = Modifier.padding(horizontal = Dimens.spaceMedium),
                 thickness = 0.5.dp,
-                color = Color(0xFFE5E5E5)
+                color = BorderLight
             )
             
             // All search results in one list
@@ -324,9 +313,9 @@ private fun SearchResultsCard(
                 // Add divider between contacts (except for the last one)
                 if (index < contacts.size - 1) {
                     HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 16.dp),
+                        modifier = Modifier.padding(horizontal = Dimens.spaceMedium),
                         thickness = 0.5.dp,
-                        color = Color(0xFFE5E5E5)
+                        color = BorderLight
                     )
                 }
             }
@@ -345,12 +334,12 @@ private fun ContactSectionCard(
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = BackgroundLight
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 1.dp
+            defaultElevation = Dimens.elevationSmall
         ),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(Dimens.radiusMedium)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -358,17 +347,15 @@ private fun ContactSectionCard(
             // Section header
             Text(
                 text = sectionLetter,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF0F172A),
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.padding(start = Dimens.spaceMedium, top = Dimens.spaceMedium, bottom = Dimens.spaceSmall)
             )
             
             // Divider after section header
             HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 16.dp),
+                modifier = Modifier.padding(horizontal = Dimens.spaceMedium),
                 thickness = 0.5.dp,
-                color = Color(0xFFE5E5E5)
+                color = BorderLight
             )
             
             // Contacts in this section
@@ -383,9 +370,9 @@ private fun ContactSectionCard(
                 // Add divider between contacts (except for the last one)
                 if (index < contacts.size - 1) {
                     HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 16.dp),
+                        modifier = Modifier.padding(horizontal = Dimens.spaceMedium),
                         thickness = 0.5.dp,
-                        color = Color(0xFFE5E5E5)
+                        color = BorderLight
                     )
                 }
             }
@@ -454,13 +441,13 @@ private fun ContactRow(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
+                .background(BackgroundLight)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onContactClick(contact) }
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                    .padding(horizontal = Dimens.spaceMedium, vertical = Dimens.spaceSmall),
                 verticalAlignment = Alignment.CenterVertically
             ) {
             // Profile photo with badge
@@ -471,25 +458,25 @@ private fun ContactRow(
                         contentDescription = "${contact.fullName} photo",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(Dimens.avatarSmall)
                             .clip(CircleShape),
                         loading = {
                             ContactInitialComponent(
                                 initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                                modifier = Modifier.size(40.dp)
+                                modifier = Modifier.size(Dimens.avatarSmall)
                             )
                         },
                         error = {
                             ContactInitialComponent(
                                 initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                                modifier = Modifier.size(40.dp)
+                                modifier = Modifier.size(Dimens.avatarSmall)
                             )
                         }
                     )
                 } else {
                     ContactInitialComponent(
                         initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.size(Dimens.avatarSmall)
                     )
                 }
                 
@@ -500,27 +487,24 @@ private fun ContactRow(
                         contentDescription = "Device Contact",
                         tint = Color.Unspecified,
                         modifier = Modifier
-                            .size(16.dp)
+                            .size(Dimens.iconSmall)
                             .align(Alignment.BottomEnd)
                     )
                 }
             }
             
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(Dimens.spaceSmall))
             
             Column(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
                     text = contact.fullName,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color(0xFF0F172A)
+                    style = MaterialTheme.typography.bodyLarge
                 )
                 Text(
                     text = contact.phoneNumber ?: "No phone number",
-                    fontSize = 14.sp,
-                    color = Color(0xFF6B7280)
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
             }
@@ -534,15 +518,9 @@ private fun SwipeBackground(
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
-    val color = when (dismissValue) {
-        SwipeToDismissBoxValue.EndToStart -> Color.Transparent
-        else -> Color.Transparent
-    }
-    
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(color),
+            .fillMaxSize(),
         contentAlignment = Alignment.CenterEnd
     ) {
         Row(
@@ -555,15 +533,15 @@ private fun SwipeBackground(
                 modifier = Modifier
                     .width(56.dp)
                     .fillMaxHeight()
-                    .background(Color(0xFF1EA7FF))
+                    .background(SwipeEdit)
                     .clickable { onEditClick() },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.edit),
                     contentDescription = "Edit",
-                    tint = Color.White,
-                    modifier = Modifier.size(16.dp)
+                    tint = BackgroundLight,
+                    modifier = Modifier.size(Dimens.iconSmall)
                 )
             }
             
@@ -573,8 +551,8 @@ private fun SwipeBackground(
                     .width(56.dp)
                     .fillMaxHeight()
                     .background(
-                        color = Color(0xFFFF0000),
-                        shape = RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp)
+                        color = Error,
+                        shape = RoundedCornerShape(topEnd = Dimens.radiusMedium, bottomEnd = Dimens.radiusMedium)
                     )
                     .clickable { onDeleteClick() },
                 contentAlignment = Alignment.Center
@@ -582,8 +560,8 @@ private fun SwipeBackground(
                 Icon(
                     painter = painterResource(id = R.drawable.delete),
                     contentDescription = "Delete",
-                    tint = Color.White,
-                    modifier = Modifier.size(18.dp)
+                    tint = BackgroundLight,
+                    modifier = Modifier.size(Dimens.iconMedium)
                 )
             }
         }
@@ -597,14 +575,14 @@ private fun ContactItem(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 2.dp),
+        modifier = modifier.padding(horizontal = Dimens.spaceMedium, vertical = 2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = BackgroundLight
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 1.dp
+            defaultElevation = Dimens.elevationSmall
         ),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(Dimens.radiusMedium)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -613,10 +591,8 @@ private fun ContactItem(
             sectionLetter?.let { letter ->
                 Text(
                     text = letter,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF0F172A),
-                    modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.padding(start = Dimens.spaceMedium, top = Dimens.spaceMedium, bottom = Dimens.spaceSmall)
                 )
             }
             
@@ -625,10 +601,10 @@ private fun ContactItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = 16.dp,
-                        top = if (sectionLetter != null) 0.dp else 16.dp
+                        start = Dimens.spaceMedium,
+                        end = Dimens.spaceMedium,
+                        bottom = Dimens.spaceMedium,
+                        top = if (sectionLetter != null) 0.dp else Dimens.spaceMedium
                     ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -638,43 +614,40 @@ private fun ContactItem(
                     contentDescription = "${contact.fullName} photo",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(Dimens.avatarSmall)
                         .clip(CircleShape),
                     loading = {
                         ContactInitialComponent(
                             initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                            modifier = Modifier.size(40.dp)
+                            modifier = Modifier.size(Dimens.avatarSmall)
                         )
                     },
                     error = {
                         ContactInitialComponent(
                             initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                            modifier = Modifier.size(40.dp)
+                            modifier = Modifier.size(Dimens.avatarSmall)
                         )
                     }
                 )
             } else {
                 ContactInitialComponent(
                     initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(Dimens.avatarSmall)
                 )
             }
             
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(Dimens.spaceSmall))
             
             Column(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
                     text = contact.fullName,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color(0xFF0F172A)
+                    style = MaterialTheme.typography.bodyLarge
                 )
                 Text(
                     text = contact.phoneNumber ?: "No phone number",
-                    fontSize = 14.sp,
-                    color = Color(0xFF6B7280)
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
             }
@@ -690,16 +663,17 @@ private fun ContactInitialComponent(
     Surface(
         modifier = modifier,
         shape = CircleShape,
-        color = Color(0xFF0075FF)
+        color = Primary
     ) {
         Box(
             contentAlignment = Alignment.Center
         ) {
                 Text(
                     text = initial,
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = BackgroundLight,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 )
         }
     }
