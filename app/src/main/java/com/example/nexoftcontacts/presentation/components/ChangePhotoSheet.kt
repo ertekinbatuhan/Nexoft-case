@@ -45,7 +45,6 @@ fun ChangePhotoSheet(
                     .padding(horizontal = Dimens.spaceMedium)
                     .padding(bottom = Dimens.spaceXLarge)
             ) {
-                // Header - Without title, just Cancel and Done buttons
                 ContactFormHeader(
                     title = "",
                     isDoneEnabled = true,
@@ -64,7 +63,6 @@ fun ChangePhotoSheet(
                 
                 Spacer(modifier = Modifier.height(Dimens.spacerHeight19))
                 
-                // Profile Photo Section with camera/gallery options
                 PhotoSection(
                     selectedPhotoUri = selectedPhotoUri ?: contact.photoUri?.let { Uri.parse(it) },
                     onPhotoClick = {
@@ -75,7 +73,6 @@ fun ChangePhotoSheet(
                 
                 Spacer(modifier = Modifier.height(Dimens.spaceLarge))
                 
-                // Form Fields
                 ContactDetailsFormFields(
                     firstName = editedFirstName,
                     lastName = editedLastName,
@@ -89,7 +86,6 @@ fun ChangePhotoSheet(
         }
     }
     
-    // Photo Picker Bottom Sheet
     if (showPhotoPickerSheet) {
         PhotoPickerBottomSheet(
             onDismiss = { showPhotoPickerSheet = false },

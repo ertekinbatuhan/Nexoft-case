@@ -35,13 +35,11 @@ fun ContactsApp(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     
-    // Setup permission handlers
     val permissionHandler = rememberPermissionHandler(
         context = context,
         coroutineScope = coroutineScope
     )
     
-    // Setup photo launchers
     val photoLaunchers = rememberPhotoLaunchers(
         photoRepository = viewModel.photoRepository,
         onPhotoSelected = { uri ->
@@ -49,7 +47,6 @@ fun ContactsApp(
         }
     )
     
-    // Main navigation
     ContactsNavigation(
         viewModel = viewModel,
         context = context,

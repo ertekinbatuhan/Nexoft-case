@@ -78,7 +78,7 @@ class ContactRepositoryImpl(
                 val cachedContacts = contactDao.getAllContacts().map { it.toDomain() }
                 Result.success(cachedContacts)
             } catch (cacheError: Exception) {
-                Result.failure(ApiException.NetworkError(e.message ?: "Network error occurred"))
+                Result.failure(ApiException.NetworkError())
             }
         }
     }
@@ -99,7 +99,7 @@ class ContactRepositoryImpl(
                 Result.failure(ApiException.fromHttpCode(response.code(), "Failed to fetch contact"))
             }
         } catch (e: Exception) {
-            Result.failure(ApiException.NetworkError(e.message ?: "Network error occurred"))
+            Result.failure(ApiException.NetworkError())
         }
     }
     
@@ -127,7 +127,7 @@ class ContactRepositoryImpl(
                 Result.failure(ApiException.fromHttpCode(response.code(), "Failed to upload image"))
             }
         } catch (e: Exception) {
-            Result.failure(ApiException.NetworkError(e.message ?: "Upload error occurred"))
+            Result.failure(ApiException.NetworkError())
         }
     }
     
@@ -151,7 +151,7 @@ class ContactRepositoryImpl(
                 Result.failure(ApiException.fromHttpCode(response.code(), "Failed to create contact"))
             }
         } catch (e: Exception) {
-            Result.failure(ApiException.NetworkError(e.message ?: "Network error occurred"))
+            Result.failure(ApiException.NetworkError())
         }
     }
     
@@ -176,7 +176,7 @@ class ContactRepositoryImpl(
                 Result.failure(ApiException.fromHttpCode(response.code(), "Failed to update contact"))
             }
         } catch (e: Exception) {
-            Result.failure(ApiException.NetworkError(e.message ?: "Network error occurred"))
+            Result.failure(ApiException.NetworkError())
         }
     }
     
@@ -198,7 +198,7 @@ class ContactRepositoryImpl(
                 Result.failure(ApiException.fromHttpCode(response.code(), "Failed to delete contact"))
             }
         } catch (e: Exception) {
-            Result.failure(ApiException.NetworkError(e.message ?: "Network error occurred"))
+            Result.failure(ApiException.NetworkError())
         }
     }
 }

@@ -34,7 +34,6 @@ fun ContactsNavigation(
     var selectedContact by remember { mutableStateOf<Contact?>(null) }
     var openInEditMode by remember { mutableStateOf(false) }
     var isSavedToPhone by remember { mutableStateOf<Map<String, Boolean>>(emptyMap()) }
-    var onSaveSuccess: (() -> Unit)? by remember { mutableStateOf(null) }
     
     // Check if contact is saved to phone
     LaunchedEffect(selectedContact?.id) {
@@ -107,7 +106,7 @@ fun ContactsNavigation(
     )
     
     // Add contact sheet
-    if (showAddContactSheet && !operationState.isSuccess) {
+    if (showAddContactSheet && !operationState.isSuccess && operationState.errorMessage == null) {
         AddContactScreen(
             selectedPhotoUri = viewModel.selectedPhotoUri.value,
             onDismiss = {
@@ -152,9 +151,11 @@ fun ContactsNavigation(
     ErrorSnackbar(
         showSnackbar = operationState.errorMessage != null,
         onDismiss = {
+            showAddContactSheet = false
             viewModel.onEvent(ContactEvent.ClearOperationState)
+            viewModel.onEvent(ContactEvent.ClearSelectedPhoto)
         },
-        message = operationState.errorMessage ?: "An error occurred"
+        message = operationState.errorMessage ?: ""
     )
     
     ErrorSnackbar(
@@ -162,7 +163,7 @@ fun ContactsNavigation(
         onDismiss = {
             viewModel.onEvent(ContactEvent.ClearErrorMessage)
         },
-        message = uiState.errorMessage ?: "An error occurred"
+        message = uiState.errorMessage ?: ""
     )
     
     // Contact details screen
@@ -179,8 +180,6 @@ fun ContactsNavigation(
             },
             onSaveToPhone = { onSuccess ->
                 if (isSavedToPhone[contact.id] != true) {
-                    onSaveSuccess = onSuccess
-                    
                     permissionHandler.requestContactsPermission {
                         coroutineScope.launch(Dispatchers.IO) {
                             val success = ContactsHelper.saveContactToPhone(
@@ -196,7 +195,6 @@ fun ContactsNavigation(
                                         isSavedToPhone = isSavedToPhone + (contactId to true)
                                         viewModel.onEvent(ContactEvent.RefreshContacts)
                                         onSuccess()
-                                        onSaveSuccess = null
                                     }
                                 }
                             }

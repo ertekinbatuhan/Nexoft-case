@@ -27,22 +27,32 @@ fun rememberPermissionHandler(
 ): PermissionHandlerState {
     var showPermissionDialog by remember { mutableStateOf(false) }
     var permissionDialogMessage by remember { mutableStateOf("") }
+    var pendingCameraAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+    var pendingContactsAction by remember { mutableStateOf<(() -> Unit)?>(null) }
     
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
-        if (!isGranted) {
+        if (isGranted) {
+            pendingCameraAction?.invoke()
+            pendingCameraAction = null
+        } else {
             permissionDialogMessage = "Camera permission is required to take photos. Please enable it in your device settings."
             showPermissionDialog = true
+            pendingCameraAction = null
         }
     }
     
     val contactsPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
-        if (!isGranted) {
+        if (isGranted) {
+            pendingContactsAction?.invoke()
+            pendingContactsAction = null
+        } else {
             permissionDialogMessage = "Contacts permission is required to save contact to your phone. Please enable it in your device settings."
             showPermissionDialog = true
+            pendingContactsAction = null
         }
     }
     
@@ -88,6 +98,7 @@ fun rememberPermissionHandler(
                 if (hasPermission) {
                     onGranted()
                 } else {
+                    pendingCameraAction = onGranted
                     cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                 }
             }
@@ -104,6 +115,7 @@ fun rememberPermissionHandler(
                 if (hasPermission) {
                     onGranted()
                 } else {
+                    pendingContactsAction = onGranted
                     contactsPermissionLauncher.launch(Manifest.permission.WRITE_CONTACTS)
                 }
             }
