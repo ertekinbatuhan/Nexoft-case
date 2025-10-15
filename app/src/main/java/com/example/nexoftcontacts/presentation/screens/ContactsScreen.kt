@@ -85,11 +85,11 @@ fun ContactsScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = BackgroundLight
+                    containerColor = BackgroundGray
                 )
             )
         },
-        containerColor = BackgroundLight
+        containerColor = BackgroundGray
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -163,40 +163,47 @@ private fun NoContactsEmptyState(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier
+            .padding(top = Dimens.emptyStateIconTopPadding),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
         Box(
             modifier = Modifier
-                .size(120.dp)
-                .background(Primary, shape = CircleShape),
+                .size(Dimens.iconXXLarge)
+                .background(BackgroundLight, shape = CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Default.Person,
+                painter = painterResource(id = R.drawable.frame),
                 contentDescription = null,
-                modifier = Modifier.size(60.dp),
-                tint = BackgroundLight
+                modifier = Modifier.size(Dimens.iconXXLarge),
+                tint = Disabled
             )
         }
         
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(Dimens.spaceSmall))
         
         Text(
             text = "No Contacts",
-            style = MaterialTheme.typography.titleMedium
-        )
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        Text(
-            text = "Contacts you've added will appear here.",
-            style = MaterialTheme.typography.bodyMedium,
+            fontSize = 24.sp,
+            fontWeight = FontWeight(700),
+            color = TextPrimary,
             textAlign = TextAlign.Center
         )
         
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(Dimens.spaceMedium))
+        
+        Text(
+            text = "Contacts you've added will appear here.",
+            fontSize = 16.sp,
+            fontWeight = FontWeight(500),
+            color = TextSecondary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.widthIn(max = 310.dp)
+        )
+        
+        Spacer(modifier = Modifier.height(Dimens.spaceMedium))
         
         TextButton(
             onClick = onCreateNewContactClick,
@@ -206,7 +213,10 @@ private fun NoContactsEmptyState(
         ) {
             Text(
                 text = "Create New Contact",
-                style = MaterialTheme.typography.labelLarge
+                fontSize = 16.sp,
+                fontWeight = FontWeight(700),
+                color = Primary,
+                textAlign = TextAlign.Center
             )
         }
     }

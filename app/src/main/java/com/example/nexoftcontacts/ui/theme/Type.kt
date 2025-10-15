@@ -48,13 +48,13 @@ val Typography = Typography(
         color = TextMuted
     ),
     
-    // "TOP NAME MATCHES" header (13sp, W600)
+    // "TOP NAME MATCHES" header (14sp, W600, TextPlaceholder)
     bodySmall = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.W600,
-        fontSize = 13.sp,
+        fontSize = 14.sp,
         letterSpacing = 0.5.sp,
-        color = TextGray
+        color = TextPlaceholder
     ),
     
     // "Create New Contact" butonu (16sp, Medium)

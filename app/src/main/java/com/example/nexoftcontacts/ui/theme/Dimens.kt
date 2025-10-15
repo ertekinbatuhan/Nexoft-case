@@ -23,10 +23,17 @@ object Dimens {
     val iconMedium: Dp = 20.dp
     val iconLarge: Dp = 24.dp
     val iconXLarge: Dp = 40.dp
+    val iconXXLarge2: Dp = 56.dp
+    val iconHuge: Dp = 96.dp
+    val iconXXLarge: Dp = 120.dp
     
     // Avatar Sizes
     val avatarSmall: Dp = 40.dp
     val avatarLarge: Dp = 150.dp
+    
+    // Empty State
+    val emptyStateTopPadding: Dp = 46.dp
+    val emptyStateIconTopPadding: Dp = 100.dp
     
     // Button Heights
     val buttonHeight: Dp = 56.dp

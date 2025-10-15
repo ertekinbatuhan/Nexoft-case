@@ -65,7 +65,7 @@ fun DeleteContactDialog(
                         .height(56.dp)
                         .border(
                             width = 1.dp,
-                            color = Color(0xFF3D3D3D),
+                            color = Color(0xFF202020),
                             shape = RoundedCornerShape(28.dp)
                         ),
                     colors = ButtonDefaults.buttonColors(

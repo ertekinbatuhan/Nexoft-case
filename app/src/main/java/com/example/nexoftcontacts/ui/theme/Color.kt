@@ -22,7 +22,7 @@ val BorderDark = Color(0xFFE8E8E8)       // Koyu çerçeve
 
 // Background Colors (Arkaplan renkleri)
 val BackgroundLight = Color(0xFFFFFFFF)  // Beyaz arkaplan (Card, Row)
-val BackgroundGray = Color(0xFFF6F6F6)   // Gri arkaplan
+val BackgroundGray = Color(0xFFF2F2F7)   // Gri arkaplan (Scaffold, Screen)
 
 // Disabled Colors (Devre dışı renkleri)
 val Disabled = Color(0xFFD1D1D1)         // Devre dışı metin/ikon
