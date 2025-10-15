@@ -189,7 +189,7 @@ fun ContactDetailsScreen(
             SuccessSnackbar(
                 showSnackbar = showSuccessMessage,
                 onDismiss = { showSuccessMessage = false },
-                message = "Contact is saved to your phone!"
+                message = "User is saved to your phone!"
             )
         }
     }
