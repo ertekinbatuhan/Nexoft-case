@@ -402,7 +402,7 @@ private fun ContactRow(
     
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
-            // Her iki yönü de kabul et
+            // 
             true
         },
         positionalThreshold = { it * 0.25f }
@@ -444,8 +444,8 @@ private fun ContactRow(
                 }
             )
         },
-        enableDismissFromStartToEnd = true, // Sağa kaydırmayı etkinleştir
-        enableDismissFromEndToStart = true, // Sola kaydırmayı etkinleştir
+        enableDismissFromStartToEnd = true, 
+        enableDismissFromEndToStart = true, 
         modifier = modifier
     ) {
         Box(

@@ -18,6 +18,7 @@ import com.example.nexoftcontacts.presentation.screens.ContactSuccessScreen
 import com.example.nexoftcontacts.presentation.screens.ContactsScreen
 import com.example.nexoftcontacts.presentation.screens.ContactDetailsScreen
 import com.example.nexoftcontacts.presentation.components.ErrorSnackbar
+import com.example.nexoftcontacts.presentation.event.ContactEvent
 import com.example.nexoftcontacts.presentation.viewmodel.ContactViewModel
 import com.example.nexoftcontacts.ui.theme.NexoftContactsTheme
 import com.example.nexoftcontacts.data.model.Contact
@@ -51,7 +52,6 @@ fun ContactsApp() {
     var contactToSave by remember { mutableStateOf<Contact?>(null) }
     var isSavedToPhone by remember { mutableStateOf<Map<String, Boolean>>(emptyMap()) }
     
-    // Check saved status when contact is selected
     LaunchedEffect(selectedContact?.id) {
         selectedContact?.id?.let { contactId ->
             val isSaved = ContactsHelper.isContactSavedToPhone(context, contactId)
@@ -59,7 +59,6 @@ fun ContactsApp() {
         }
     }
     
-    // Contacts permission launcher
     val contactsPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -76,8 +75,7 @@ fun ContactsApp() {
                         contact.id?.let { 
                             ContactsHelper.markContactAsSaved(context, it)
                             isSavedToPhone = isSavedToPhone + (it to true)
-                            // Refresh contacts to update isDeviceContact flag
-                            viewModel.refreshContacts()
+                            viewModel.onEvent(ContactEvent.RefreshContacts)
                         }
                     }
                 }
@@ -86,24 +84,21 @@ fun ContactsApp() {
         }
     }
     
-    // Camera launcher
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         if (success) {
             val uri = photoRepository.getCurrentPhotoUri()
-            viewModel.setSelectedPhoto(uri)
+            viewModel.onEvent(ContactEvent.SetSelectedPhoto(uri))
         }
     }
     
-    // Gallery launcher
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        viewModel.setSelectedPhoto(uri)
+        viewModel.onEvent(ContactEvent.SetSelectedPhoto(uri))
     }
     
-    // Set launchers to repository
     LaunchedEffect(Unit) {
         photoRepository.setCameraLauncher(cameraLauncher)
         photoRepository.setGalleryLauncher(galleryLauncher)
@@ -125,45 +120,40 @@ fun ContactsApp() {
             showAddContactSheet = true
         },
         onRefresh = {
-            viewModel.refreshContacts()
+            viewModel.onEvent(ContactEvent.RefreshContacts)
         },
         onErrorDismiss = {
-            viewModel.clearErrorMessage()
+            viewModel.onEvent(ContactEvent.ClearErrorMessage)
         },
         onSearchQueryChange = { query ->
-            viewModel.updateSearchQuery(query)
-            // Save to history when user types and hits enter or submits
-            if (query.isNotBlank()) {
-                viewModel.submitSearch(query)
-            }
+            viewModel.onEvent(ContactEvent.UpdateSearchQuery(query))
         },
         onClearSearch = {
-            viewModel.clearSearch()
-            viewModel.loadSearchHistory()
+            viewModel.onEvent(ContactEvent.ClearSearch)
+            viewModel.onEvent(ContactEvent.LoadSearchHistory)
         },
         onSearchFocusChanged = { focused ->
             if (focused) {
-                viewModel.loadSearchHistory()
+                viewModel.onEvent(ContactEvent.LoadSearchHistory)
             }
         },
         onHistoryItemClick = { query ->
-            viewModel.selectHistoryItem(query)
-            viewModel.submitSearch(query)
+            viewModel.onEvent(ContactEvent.SelectSearchHistory(query))
         },
         onRemoveHistoryItem = { query ->
-            viewModel.removeFromHistory(query)
+            viewModel.onEvent(ContactEvent.RemoveSearchHistory(query))
         },
         onClearSearchHistory = {
-            viewModel.clearSearchHistory()
+            viewModel.onEvent(ContactEvent.ClearSearchHistory)
         },
         onDeleteContact = { contactId ->
-            viewModel.deleteContact(contactId, context)
+            viewModel.onEvent(ContactEvent.DeleteContact(contactId, context))
         },
         onDeleteSuccessDismiss = {
-            viewModel.clearDeleteSuccess()
+            viewModel.onEvent(ContactEvent.ClearDeleteSuccess)
         },
         onUpdateSuccessDismiss = {
-            viewModel.clearUpdateSuccess()
+            viewModel.onEvent(ContactEvent.ClearUpdateSuccess)
         },
         onContactClick = { contact ->
             selectedContact = contact
@@ -175,55 +165,53 @@ fun ContactsApp() {
             selectedPhotoUri = viewModel.selectedPhotoUri,
             onDismiss = {
                 showAddContactSheet = false
-                viewModel.clearSelectedPhoto()
+                viewModel.onEvent(ContactEvent.ClearSelectedPhoto)
             },
             onSave = { firstName, lastName, phoneNumber ->
-                viewModel.addContact(
-                    firstName = firstName,
-                    lastName = lastName,
-                    phoneNumber = phoneNumber,
-                    context = context
+                viewModel.onEvent(
+                    ContactEvent.AddContact(
+                        firstName = firstName,
+                        lastName = lastName,
+                        phoneNumber = phoneNumber,
+                        context = context
+                    )
                 )
                 showAddContactSheet = false
             },
             isLoading = operationState.isLoading,
             onCameraClick = {
-                viewModel.capturePhotoFromCamera()
+                viewModel.onEvent(ContactEvent.OpenCamera(context))
             },
             onGalleryClick = {
-                viewModel.selectPhotoFromGallery()
+                viewModel.onEvent(ContactEvent.OpenGallery(context))
             }
         )
     }
     
-    // Success Screen - show when operation is successful
     if (operationState.isSuccess) {
         ContactSuccessScreen(
             onDismiss = {
-                viewModel.clearOperationState()
+                viewModel.onEvent(ContactEvent.ClearOperationState)
             }
         )
     }
     
-    // Error Snackbar - show when operation fails (Add, Update, Delete)
     ErrorSnackbar(
         showSnackbar = operationState.errorMessage != null,
         onDismiss = {
-            viewModel.clearOperationState()
+            viewModel.onEvent(ContactEvent.ClearOperationState)
         },
         message = operationState.errorMessage ?: "An error occurred"
     )
     
-    // Error Snackbar - show when loading/refresh fails
     ErrorSnackbar(
         showSnackbar = uiState.errorMessage != null,
         onDismiss = {
-            viewModel.clearErrorMessage()
+            viewModel.onEvent(ContactEvent.ClearErrorMessage)
         },
         message = uiState.errorMessage ?: "An error occurred"
     )
     
-    // Contact Details Screen
     selectedContact?.let { contact ->
         ContactDetailsScreen(
             contact = contact,
@@ -231,31 +219,33 @@ fun ContactsApp() {
             isSavedToPhone = isSavedToPhone[contact.id] ?: false,
             onDismiss = {
                 selectedContact = null
-                viewModel.clearSelectedPhoto()
+                viewModel.onEvent(ContactEvent.ClearSelectedPhoto)
             },
             onSaveToPhone = {
                 contactToSave = contact
                 contactsPermissionLauncher.launch(Manifest.permission.WRITE_CONTACTS)
             },
             onUpdateContact = { contactId, firstName, lastName, phoneNumber ->
-                viewModel.updateContact(
-                    contactId = contactId,
-                    firstName = firstName,
-                    lastName = lastName,
-                    phoneNumber = phoneNumber,
-                    context = context
+                viewModel.onEvent(
+                    ContactEvent.UpdateContact(
+                        contactId = contactId,
+                        firstName = firstName,
+                        lastName = lastName,
+                        phoneNumber = phoneNumber,
+                        context = context
+                    )
                 )
                 selectedContact = null
             },
             onDeleteContact = { contactId ->
-                viewModel.deleteContact(contactId, context)
+                viewModel.onEvent(ContactEvent.DeleteContact(contactId, context))
                 selectedContact = null
             },
             onChangePhoto = {
-                viewModel.selectPhotoFromGallery()
+                viewModel.onEvent(ContactEvent.OpenGallery(context))
             },
             onClearSelectedPhoto = {
-                viewModel.clearSelectedPhoto()
+                viewModel.onEvent(ContactEvent.ClearSelectedPhoto)
             }
         )
     }
