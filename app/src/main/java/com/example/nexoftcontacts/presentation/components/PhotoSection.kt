@@ -79,7 +79,7 @@ fun PhotoSection(
             }
         }
 
-        Spacer(modifier = Modifier.height(if (isEditMode) Dimens.spaceSmall else Dimens.spaceSmall2))
+        Spacer(modifier = Modifier.height(Dimens.spaceSmall))
 
         Text(
             text = if (selectedPhotoUri != null) "Change Photo" else "Add Photo",
