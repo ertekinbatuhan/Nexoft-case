@@ -16,7 +16,7 @@ import com.example.nexoftcontacts.ui.theme.White
 import kotlinx.coroutines.delay
 
 @Composable
-fun DeleteSuccessSnackbar(
+fun SuccessSnackbar(
     showSnackbar: Boolean,
     onDismiss: () -> Unit,
     message: String = "User is deleted!"

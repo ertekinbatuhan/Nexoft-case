@@ -6,15 +6,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.nexoftcontacts.presentation.components.DoneAnimation
+import com.example.nexoftcontacts.ui.theme.*
 import kotlinx.coroutines.delay
 
 @Composable
@@ -39,53 +34,35 @@ fun ContactSuccessScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
-                .padding(horizontal = 32.dp),
-            contentAlignment = Alignment.Center
+                .background(White)
+                .padding(horizontal = Dimens.spaceXLarge),
+            contentAlignment = Alignment.TopCenter
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                modifier = Modifier.padding(top = Dimens.successScreenTopPadding)
             ) {
                 // Success Animation
                 DoneAnimation(
-                    modifier = Modifier
-                        .width(96.dp)
-                        .height(95.74.dp),
+                    modifier = Modifier.size(Dimens.animationSuccess),
                     isPlaying = true,
                     iterations = 1
                 )
                 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(Dimens.spaceLarge))
                 
                 // "All Done!" text
                 Text(
                     text = "All Done!",
-                    style = TextStyle(
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight(700),
-                        color = Color(0xFF202020),
-                        textAlign = TextAlign.Center,
-                    ),
-                    modifier = Modifier
-                        .width(310.dp)
-                        .height(30.dp)
+                    style = CustomTextStyles.successScreenTitle
                 )
                 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(Dimens.spaceXSmall))
                 
                 // "New contact saved 🎉" text
                 Text(
                     text = "New contact saved 🎉",
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight(500),
-                        color = Color(0xFF3D3D3D),
-                        textAlign = TextAlign.Center,
-                    ),
-                    modifier = Modifier
-                        .width(310.dp)
-                        .height(20.dp)
+                    style = CustomTextStyles.successScreenSubtitle
                 )
             }
         }

@@ -4,11 +4,11 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
 
-// Material3 Typography set customized with app styles
 val Typography = Typography(
-    // "Contacts" başlığı (24sp, W800)
     titleLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.W800,
@@ -16,7 +16,6 @@ val Typography = Typography(
         color = TextPrimary
     ),
     
-    // "New Contact" başlığı (20sp, W800)
     headlineLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.W800,
@@ -24,7 +23,6 @@ val Typography = Typography(
         color = TextPrimary
     ),
     
-    // "No Contacts" başlığı (20sp, SemiBold)
     titleMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.SemiBold,
@@ -32,7 +30,6 @@ val Typography = Typography(
         color = TextDark
     ),
     
-    // Bölüm harfleri "A", "B" (14sp, W600, TextPlaceholder)
     titleSmall = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.W600,
@@ -40,7 +37,6 @@ val Typography = Typography(
         color = TextPlaceholder
     ),
     
-    // Kişi isimleri - Liste (14sp, Bold)
     bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,
@@ -48,7 +44,6 @@ val Typography = Typography(
         color = TextPrimary
     ),
     
-    // Telefon numaraları - Liste (12sp, Medium)
     bodyMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
@@ -56,7 +51,6 @@ val Typography = Typography(
         color = TextMuted
     ),
     
-    // "TOP NAME MATCHES" header (14sp, W600, TextPlaceholder)
     bodySmall = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.W600,
@@ -65,7 +59,6 @@ val Typography = Typography(
         color = TextPlaceholder
     ),
     
-    // Dialog başlıkları "Delete Contact" (20sp, Bold)
     headlineSmall = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,
@@ -73,7 +66,6 @@ val Typography = Typography(
         color = TextSecondary
     ),
     
-    // Dialog açıklama metinleri "Are you sure..." (14sp, Medium)
     headlineMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
@@ -81,7 +73,6 @@ val Typography = Typography(
         color = TextSecondary
     ),
     
-    // "Create New Contact" butonu ve Camera/Gallery button text (16sp, W600, TextPrimary)
     labelLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.W600,
@@ -89,7 +80,6 @@ val Typography = Typography(
         color = TextPrimary
     ),
     
-    // "Search by name" placeholder (14sp, W600)
     labelMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.W600,
@@ -97,7 +87,6 @@ val Typography = Typography(
         color = TextPlaceholder
     ),
     
-    // TextField placeholder "First Name", "Last Name" (14sp, W600, TextFieldPlaceholder)
     displayLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.W600,
@@ -105,14 +94,12 @@ val Typography = Typography(
         color = TextFieldPlaceholder
     ),
     
-    // Dialog button text "No", "Yes" (16sp, SemiBold)
     labelSmall = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.SemiBold,
         fontSize = 16.sp
     ),
     
-    // "Cancel" button text (16sp, Medium, Primary)
     displaySmall = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
@@ -120,7 +107,6 @@ val Typography = Typography(
         color = Primary
     ),
     
-    // "Done" button text (16sp, Bold, Primary)
     displayMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,
@@ -129,9 +115,7 @@ val Typography = Typography(
     )
 )
 
-// Custom text styles for dropdown menu items
 object DropdownTextStyles {
-    // Dropdown menu items "Edit", "Delete" (14sp, Medium)
     val menuItem = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
@@ -139,9 +123,7 @@ object DropdownTextStyles {
     )
 }
 
-// Custom text styles for other components
 object CustomTextStyles {
-    // "Edit Contact" başlığı (20sp, Bold/W700, TextPrimary)
     val editContactTitle = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,
@@ -149,7 +131,6 @@ object CustomTextStyles {
         color = TextPrimary
     )
     
-    // "Change Photo" button text (16sp, Bold, Primary)
     val changePhotoButton = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,
@@ -157,14 +138,12 @@ object CustomTextStyles {
         color = Primary
     )
     
-    // "Save to My Phone Contact" button text (16sp, SemiBold)
     val saveButton = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.SemiBold,
         fontSize = 16.sp
     )
     
-    // Info message text (12sp, Medium, TextMuted)
     val infoMessage = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
@@ -172,11 +151,48 @@ object CustomTextStyles {
         color = TextMuted
     )
     
-    // Success message text (14sp, Bold, Success)
     val successMessage = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,
         fontSize = 14.sp,
         color = Success
+    )
+    
+    val successScreenTitle = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp,
+        color = TextPrimary,
+        textAlign = TextAlign.Center
+    )
+    
+    val successScreenSubtitle = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp,
+        color = TextSecondary,
+        textAlign = TextAlign.Center
+    )
+    
+    val searchHistoryTitle = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 14.sp,
+        color = TextPlaceholder
+    )
+    
+    val clearAllButton = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp,
+        color = Primary,
+        textDecoration = TextDecoration.Underline
+    )
+    
+    val searchHistoryItem = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        color = TextTertiary
     )
 }

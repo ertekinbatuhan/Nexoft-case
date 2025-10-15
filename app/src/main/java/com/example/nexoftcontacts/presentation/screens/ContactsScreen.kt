@@ -28,7 +28,7 @@ import coil.compose.SubcomposeAsyncImage
 import com.example.nexoftcontacts.presentation.components.SearchBar
 import com.example.nexoftcontacts.presentation.components.NoSearchResults
 import com.example.nexoftcontacts.presentation.components.DeleteContactDialog
-import com.example.nexoftcontacts.presentation.components.DeleteSuccessSnackbar
+import com.example.nexoftcontacts.presentation.components.SuccessSnackbar
 import com.example.nexoftcontacts.presentation.components.SearchHistory
 import com.example.nexoftcontacts.ui.theme.*
 import kotlinx.coroutines.launch
@@ -142,13 +142,13 @@ fun ContactsScreen(
                 }
             }
             
-            DeleteSuccessSnackbar(
+            SuccessSnackbar(
                 showSnackbar = showDeleteSuccess,
                 onDismiss = onDeleteSuccessDismiss,
                 message = "User is deleted!"
             )
             
-            DeleteSuccessSnackbar(
+            SuccessSnackbar(
                 showSnackbar = showUpdateSuccess,
                 onDismiss = onUpdateSuccessDismiss,
                 message = "User is updated!"

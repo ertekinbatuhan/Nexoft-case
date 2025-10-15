@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.DpOffset
 import coil.compose.SubcomposeAsyncImage
 import com.example.nexoftcontacts.data.model.Contact
 import com.example.nexoftcontacts.presentation.components.DeleteContactDialog
+import com.example.nexoftcontacts.presentation.components.SuccessSnackbar
 import com.example.nexoftcontacts.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -433,58 +434,27 @@ fun ContactDetailsScreen(
                     }
                 }
 
-                // Success message snackbar
                 if (showSuccessMessage) {
-                    LaunchedEffect(Unit) {
-                        kotlinx.coroutines.delay(3000)
-                        showSuccessMessage = false
-                    }
-
                     Box(
-                        modifier = Modifier
-                            .fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.BottomCenter
                     ) {
-                        Surface(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = Dimens.spaceXLarge, start = Dimens.spaceMedium, end = Dimens.spaceMedium),
-                            shape = RoundedCornerShape(Dimens.radiusMedium),
-                            color = White,
-                            shadowElevation = Dimens.elevationMedium
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(Dimens.spaceMedium),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(Dimens.spaceSmall2)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(Dimens.iconLarge)
-                                        .background(
-                                            color = Success,
-                                            shape = RoundedCornerShape(Dimens.radiusMedium)
-                                        ),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.g443),
-                                        contentDescription = null,
-                                        tint = White,
-                                        modifier = Modifier.size(Dimens.iconSmall)
-                                    )
-                                }
-                                Text(
-                                    text = "User is added yo your phone!",
-                                    style = CustomTextStyles.successMessage
-                                )
-                            }
-                        }
+                        SuccessSnackbar(
+                            showSnackbar = showSuccessMessage,
+                            onDismiss = { showSuccessMessage = false },
+                            message = "User is added to your phone!"
+                        )
                     }
                 }
             }
         }
     }
+    
+    SuccessSnackbar(
+        showSnackbar = showSuccessMessage,
+        onDismiss = { showSuccessMessage = false },
+        message = "User is added to your phone!"
+    )
     
     // Change Photo Sheet
     if (showChangePhotoSheet) {

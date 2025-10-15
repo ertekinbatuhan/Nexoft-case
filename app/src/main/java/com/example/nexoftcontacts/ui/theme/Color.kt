@@ -2,41 +2,41 @@ package com.example.nexoftcontacts.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Primary Colors (Ana renkler)
-val Primary = Color(0xFF0075FF)          // Mavi - Butonlar, ikonlar
-val PrimaryLight = Color(0xFF1EA7FF)     // Açık mavi - Swipe arkaplan
+// Primary Colors
+val Primary = Color(0xFF0075FF)
+val PrimaryLight = Color(0xFF1EA7FF)
 
-// Text Colors (Metin renkleri)
-val TextPrimary = Color(0xFF202020)      // Ana başlıklar  // Contact kısmı 
-val TextSecondary = Color(0xFF3D3D3D)    // Alt başlıklar
-val TextTertiary = Color(0xFF4F4F4F)     // Üçüncül metinler
-val TextDark = Color(0xFF0F172A)         // Koyu metinler
-val TextGray = Color(0xFF6B7280)         // Gri metinler (telefon numarası vb.)
-val TextMuted = Color(0xFF6D6D6D)        // Soluk metinler
-val TextPlaceholder = Color(0xFFB0B0B0)  // Placeholder metinler (Search by name)
-val TextFieldPlaceholder = Color(0xFF888888)  // TextField placeholder metinler
+// Text Colors
+val TextPrimary = Color(0xFF202020)
+val TextSecondary = Color(0xFF3D3D3D)
+val TextTertiary = Color(0xFF4F4F4F)
+val TextDark = Color(0xFF0F172A)
+val TextGray = Color(0xFF6B7280)
+val TextMuted = Color(0xFF6D6D6D)
+val TextPlaceholder = Color(0xFFB0B0B0)
+val TextFieldPlaceholder = Color(0xFF888888)
 
-// Border Colors (Çerçeve renkleri)
-val BorderLight = Color(0xFFE5E5E5)      // Açık çerçeve
-val BorderMedium = Color(0xFFE7E7E7)     // Orta çerçeve
-val BorderDark = Color(0xFFE8E8E8)       // Koyu çerçeve
+// Border Colors
+val BorderLight = Color(0xFFE5E5E5)
+val BorderMedium = Color(0xFFE7E7E7)
+val BorderDark = Color(0xFFE8E8E8)
 
-// Background Colors (Arkaplan renkleri)
-val BackgroundLight = Color(0xFFFFFFFF)  // Beyaz arkaplan (Card, Row)
-val BackgroundGray = Color(0xFFF2F2F7)   // Gri arkaplan (Scaffold, Screen)
+// Background Colors
+val BackgroundLight = Color(0xFFFFFFFF)
+val BackgroundGray = Color(0xFFF2F2F7)
 
-// Disabled Colors (Devre dışı renkleri)
-val Disabled = Color(0xFFD1D1D1)         // Devre dışı metin/ikon
-val DisabledBorder = Color(0xFFE7E7E7)   // Devre dışı çerçeve
+// Disabled Colors
+val Disabled = Color(0xFFD1D1D1)
+val DisabledBorder = Color(0xFFE7E7E7)
 
-// Status Colors (Durum renkleri)
-val Success = Color(0xFF12B76A)          // Başarı yeşili
-val Error = Color(0xFFFF0000)            // Hata kırmızısı
+// Status Colors
+val Success = Color(0xFF12B76A)
+val Error = Color(0xFFFF0000)
 
-// Swipe Actions (Kaydırma aksiyonları)
-val SwipeEdit = Color(0xFF1EA7FF)        // Düzenleme mavi
-val SwipeDelete = Color(0xFFFF0000)      // Silme kırmızısı
+// Swipe Actions
+val SwipeEdit = Color(0xFF1EA7FF)
+val SwipeDelete = Color(0xFFFF0000)
 
-// Contact Details Screen (Kişi detay ekranı)
-val IconBlack = Color(0xFF000000)        // Menü ikonu rengi
-val White = Color(0xFFFFFFFF)            // Beyaz arkaplan
+// Other Colors
+val IconBlack = Color(0xFF000000)
+val White = Color(0xFFFFFFFF)

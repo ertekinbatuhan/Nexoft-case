@@ -10,7 +10,7 @@ object Dimens {
     val radiusLarge: Dp = 16.dp
     val radiusXLarge: Dp = 28.dp
     val radiusRound: Dp = 50.dp
-    val radiusXXLarge: Dp = 64.dp // For fully rounded buttons
+    val radiusXXLarge: Dp = 64.dp 
     
     // Spacing
     val spaceXSmall: Dp = 4.dp
@@ -29,6 +29,12 @@ object Dimens {
     val iconXXLarge2: Dp = 56.dp
     val iconHuge: Dp = 96.dp
     val iconXXLarge: Dp = 120.dp
+    
+    // Icon Padding
+    val iconPaddingSmall: Dp = 4.dp
+    
+    // Animation Sizes
+    val animationSuccess: Dp = 96.dp
     
     // Avatar Sizes
     val avatarSmall: Dp = 40.dp
@@ -53,4 +59,11 @@ object Dimens {
     // Contact Details Screen
     val spacerHeight19: Dp = 19.dp
     val modalHeightFraction: Float = 0.9f
+    
+    // Snackbar
+    val snackbarBottomPadding: Dp = 48.dp
+    val snackbarWidth: Dp = 343.dp
+    
+    // Success Screen
+    val successScreenTopPadding: Dp = 251.dp
 }
