@@ -105,11 +105,17 @@ fun ContactDetailsScreen(
                 ContactDetailsHeader(
                     isEditMode = isEditMode,
                     onCancelEdit = {
-                        isEditMode = false
-                        // Reset edited values
-                        editedFirstName = contact.firstName ?: ""
-                        editedLastName = contact.lastName ?: ""
-                        editedPhoneNumber = contact.phoneNumber ?: ""
+                        if (initialEditMode) {
+                            // If opened directly in edit mode (from swipe), close the sheet
+                            onDismiss()
+                        } else {
+                            // If switched to edit mode from details view, go back to view mode
+                            isEditMode = false
+                            // Reset edited values
+                            editedFirstName = contact.firstName ?: ""
+                            editedLastName = contact.lastName ?: ""
+                            editedPhoneNumber = contact.phoneNumber ?: ""
+                        }
                     },
                     onDoneEdit = {
                         contact.id?.let { contactId ->
