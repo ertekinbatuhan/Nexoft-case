@@ -42,7 +42,7 @@ This project follows **Clean Architecture** principles with clear separation of 
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                   Presentation Layer                     │
+│                   Presentation Layer                   │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
 │  │   Screens    │  │  ViewModels  │  │  Components  │  │
 │  │   (Compose)  │  │   (State)    │  │     (UI)     │  │
@@ -50,7 +50,7 @@ This project follows **Clean Architecture** principles with clear separation of 
 └─────────────────────────────────────────────────────────┘
                           ↓
 ┌─────────────────────────────────────────────────────────┐
-│                    Domain Layer                          │
+│                    Domain Layer                         │
 │  ┌──────────────┐  ┌──────────────┐                     │
 │  │  Use Cases   │  │ Repositories │                     │
 │  │  (Business)  │  │ (Interfaces) │                     │
@@ -58,7 +58,7 @@ This project follows **Clean Architecture** principles with clear separation of 
 └─────────────────────────────────────────────────────────┘
                           ↓
 ┌─────────────────────────────────────────────────────────┐
-│                     Data Layer                           │
+│                     Data Layer                         │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
 │  │ Repositories │  │  API Service │  │     Room     │  │
 │  │    (Impl)    │  │   (Remote)   │  │   (Local)    │  │
