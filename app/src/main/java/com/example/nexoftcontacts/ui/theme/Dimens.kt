@@ -14,6 +14,7 @@ object Dimens {
     // Spacing
     val spaceXSmall: Dp = 4.dp
     val spaceSmall: Dp = 8.dp
+    val spaceSmall2: Dp = 12.dp
     val spaceMedium: Dp = 16.dp
     val spaceLarge: Dp = 24.dp
     val spaceXLarge: Dp = 32.dp

@@ -57,6 +57,22 @@ val Typography = Typography(
         color = TextPlaceholder
     ),
     
+    // Dialog başlıkları "Delete Contact" (20sp, Bold)
+    headlineSmall = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp,
+        color = TextSecondary
+    ),
+    
+    // Dialog açıklama metinleri "Are you sure..." (14sp, Medium)
+    headlineMedium = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
+        color = TextSecondary
+    ),
+    
     // "Create New Contact" butonu (16sp, Medium)
     labelLarge = TextStyle(
         fontFamily = FontFamily.Default,
@@ -71,5 +87,12 @@ val Typography = Typography(
         fontWeight = FontWeight.W600,
         fontSize = 14.sp,
         color = TextPlaceholder
+    ),
+    
+    // Dialog button text "No", "Yes" (16sp, SemiBold)
+    labelSmall = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 16.sp
     )
 )
