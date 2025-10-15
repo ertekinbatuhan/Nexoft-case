@@ -97,6 +97,14 @@ fun ContactsScreen(
                         onClearAll = onClearSearchHistory,
                         modifier = Modifier.fillMaxWidth()
                     )
+                } else if (isLoading) {
+                    // Show loading state
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = androidx.compose.ui.Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = Primary)
+                    }
                 } else if (contacts.isEmpty()) {
                     if (searchQuery.isNotBlank()) {
                         NoSearchResults(
