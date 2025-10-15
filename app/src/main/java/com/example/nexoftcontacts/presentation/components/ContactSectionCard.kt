@@ -15,6 +15,7 @@ fun ContactSectionCard(
     contacts: List<Contact>,
     onDeleteContact: (String) -> Unit,
     onContactClick: (Contact) -> Unit,
+    onContactEditClick: (Contact) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -50,6 +51,7 @@ fun ContactSectionCard(
                     contact = contact,
                     onDeleteContact = onDeleteContact,
                     onContactClick = onContactClick,
+                    onContactEditClick = onContactEditClick,
                     modifier = Modifier.fillMaxWidth()
                 )
                 

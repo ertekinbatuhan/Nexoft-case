@@ -13,6 +13,7 @@ fun ContactList(
     searchQuery: String,
     onDeleteContact: (String) -> Unit,
     onContactClick: (Contact) -> Unit,
+    onContactEditClick: (Contact) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val isSearching = searchQuery.isNotBlank()
@@ -30,6 +31,7 @@ fun ContactList(
                     contacts = sortedContacts,
                     onDeleteContact = onDeleteContact,
                     onContactClick = onContactClick,
+                    onContactEditClick = onContactEditClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
@@ -47,6 +49,7 @@ fun ContactList(
                         contacts = contactsInGroup,
                         onDeleteContact = onDeleteContact,
                         onContactClick = onContactClick,
+                        onContactEditClick = onContactEditClick,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)

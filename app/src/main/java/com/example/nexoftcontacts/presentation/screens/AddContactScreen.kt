@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
+import coil.request.ImageRequest
 import com.example.nexoftcontacts.R
 import com.example.nexoftcontacts.presentation.components.PhotoPickerBottomSheet
 import com.example.nexoftcontacts.ui.theme.*
@@ -42,6 +44,7 @@ fun AddContactScreen(
     isLoading: Boolean = false,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
@@ -125,7 +128,10 @@ fun AddContactScreen(
                             }
                     ) {
                         SubcomposeAsyncImage(
-                            model = selectedPhotoUri,
+                            model = ImageRequest.Builder(context)
+                                .data(selectedPhotoUri)
+                                .crossfade(true)
+                                .build(),
                             contentDescription = "Selected photo",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier

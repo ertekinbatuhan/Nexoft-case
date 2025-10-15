@@ -33,6 +33,7 @@ fun ContactsScreen(
     onDeleteSuccessDismiss: () -> Unit = {},
     onUpdateSuccessDismiss: () -> Unit = {},
     onContactClick: (com.example.nexoftcontacts.data.model.Contact) -> Unit = {},
+    onContactEditClick: (com.example.nexoftcontacts.data.model.Contact) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var isSearchFocused by remember { mutableStateOf(false) }
@@ -122,6 +123,7 @@ fun ContactsScreen(
                         searchQuery = searchQuery,
                         onDeleteContact = onDeleteContact,
                         onContactClick = onContactClick,
+                        onContactEditClick = onContactEditClick,
                         modifier = Modifier.fillMaxSize()
                     )
                 }

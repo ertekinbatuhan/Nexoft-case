@@ -11,6 +11,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.Dp
 import coil.compose.SubcomposeAsyncImage
 import com.example.nexoftcontacts.ui.theme.*
 
@@ -21,7 +22,8 @@ fun ContactProfileSection(
     dominantColor: Color = Primary,
     onChangePhotoClick: () -> Unit,
     modifier: Modifier = Modifier,
-    isLargeAvatar: Boolean = true
+    isLargeAvatar: Boolean = true,
+    photoSize: Dp = Dimens.iconHuge
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -29,7 +31,7 @@ fun ContactProfileSection(
     ) {
         // Profile Photo
         Box(
-            modifier = Modifier.size(Dimens.avatarLarge)
+            modifier = Modifier.size(photoSize)
         ) {
             if (photoUri != null) {
                 SubcomposeAsyncImage(
@@ -37,7 +39,7 @@ fun ContactProfileSection(
                     contentDescription = "Profile photo",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(Dimens.avatarLarge)
+                        .size(photoSize)
                         .shadow(
                             elevation = Dimens.elevationLarge,
                             shape = CircleShape,
@@ -48,14 +50,14 @@ fun ContactProfileSection(
                     loading = {
                         ContactInitialComponent(
                             initial = initial,
-                            modifier = Modifier.size(Dimens.avatarLarge),
+                            modifier = Modifier.size(photoSize),
                             isLargeAvatar = isLargeAvatar
                         )
                     },
                     error = {
                         ContactInitialComponent(
                             initial = initial,
-                            modifier = Modifier.size(Dimens.avatarLarge),
+                            modifier = Modifier.size(photoSize),
                             isLargeAvatar = isLargeAvatar
                         )
                     }
@@ -63,7 +65,7 @@ fun ContactProfileSection(
             } else {
                 ContactInitialComponent(
                     initial = initial,
-                    modifier = Modifier.size(Dimens.avatarLarge),
+                    modifier = Modifier.size(photoSize),
                     isLargeAvatar = isLargeAvatar
                 )
             }

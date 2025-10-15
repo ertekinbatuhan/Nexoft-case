@@ -15,11 +15,13 @@ fun ChangePhotoSheet(
     selectedPhotoUri: Uri?,
     onDismiss: () -> Unit,
     onUpdateContact: (String, String, String, String) -> Unit,
-    onChangePhoto: () -> Unit
+    onChangePhoto: () -> Unit,
+    onCameraClick: () -> Unit = {}
 ) {
     var editedFirstName by remember { mutableStateOf(contact.firstName ?: "") }
     var editedLastName by remember { mutableStateOf(contact.lastName ?: "") }
     var editedPhoneNumber by remember { mutableStateOf(contact.phoneNumber ?: "") }
+    var showPhotoPickerSheet by remember { mutableStateOf(false) }
     
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -62,11 +64,13 @@ fun ChangePhotoSheet(
                 
                 Spacer(modifier = Modifier.height(Dimens.spacerHeight19))
                 
-                // Profile Photo Section
-                ContactProfileSection(
-                    photoUri = selectedPhotoUri ?: contact.photoUri?.let { Uri.parse(it) },
-                    initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                    onChangePhotoClick = onChangePhoto
+                // Profile Photo Section with camera/gallery options
+                PhotoSection(
+                    selectedPhotoUri = selectedPhotoUri ?: contact.photoUri?.let { Uri.parse(it) },
+                    onPhotoClick = {
+                        showPhotoPickerSheet = true
+                    },
+                    isEditMode = true
                 )
                 
                 Spacer(modifier = Modifier.height(Dimens.spaceLarge))
@@ -83,5 +87,20 @@ fun ChangePhotoSheet(
                 )
             }
         }
+    }
+    
+    // Photo Picker Bottom Sheet
+    if (showPhotoPickerSheet) {
+        PhotoPickerBottomSheet(
+            onDismiss = { showPhotoPickerSheet = false },
+            onCameraClick = {
+                onCameraClick()
+                showPhotoPickerSheet = false
+            },
+            onGalleryClick = {
+                onChangePhoto()
+                showPhotoPickerSheet = false
+            }
+        )
     }
 }

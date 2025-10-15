@@ -2,6 +2,7 @@ package com.example.nexoftcontacts.presentation.viewmodel
 
 import android.content.Context
 import android.net.Uri
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -50,7 +51,7 @@ class ContactViewModel @Inject constructor(
     val operationState: StateFlow<ContactOperationState> = _operationState.asStateFlow()
     
     private val _selectedPhotoUri = mutableStateOf<Uri?>(null)
-    val selectedPhotoUri: Uri? get() = _selectedPhotoUri.value
+    val selectedPhotoUri: State<Uri?> = _selectedPhotoUri
     
     // Debounce job for search history
     private var searchDebounceJob: Job? = null
@@ -285,7 +286,7 @@ class ContactViewModel @Inject constructor(
         viewModelScope.launch {
             photoPickerUseCase.captureFromCamera()
                 .onSuccess { uri ->
-                    _selectedPhotoUri.value = uri
+                    // URI will be set in MainActivity callback after photo is taken
                 }
                 .onFailure { 
                 }

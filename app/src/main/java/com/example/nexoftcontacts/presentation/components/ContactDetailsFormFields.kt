@@ -19,7 +19,6 @@ fun ContactDetailsFormFields(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        // First Name Field
         OutlinedTextField(
             value = firstName,
             onValueChange = onFirstNameChange,
@@ -34,7 +33,6 @@ fun ContactDetailsFormFields(
 
         Spacer(modifier = Modifier.height(Dimens.spaceMedium))
 
-        // Last Name Field
         OutlinedTextField(
             value = lastName,
             onValueChange = onLastNameChange,
@@ -49,7 +47,6 @@ fun ContactDetailsFormFields(
 
         Spacer(modifier = Modifier.height(Dimens.spaceMedium))
 
-        // Phone Number Field
         OutlinedTextField(
             value = phoneNumber,
             onValueChange = onPhoneNumberChange,

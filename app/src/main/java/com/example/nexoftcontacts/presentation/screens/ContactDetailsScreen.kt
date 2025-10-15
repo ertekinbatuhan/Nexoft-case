@@ -24,17 +24,20 @@ fun ContactDetailsScreen(
     contact: Contact,
     selectedPhotoUri: Uri?,
     isSavedToPhone: Boolean = false,
+    initialEditMode: Boolean = false,
     onDismiss: () -> Unit,
     onSaveToPhone: (() -> Unit) -> Unit,
     onUpdateContact: (String, String, String, String) -> Unit,
     onDeleteContact: (String) -> Unit,
     onChangePhoto: () -> Unit,
+    onCameraClick: () -> Unit = {},
     onClearSelectedPhoto: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var showMenu by remember { mutableStateOf(false) }
-    var isEditMode by remember { mutableStateOf(false) }
+    var isEditMode by remember { mutableStateOf(initialEditMode) }
     var showChangePhotoSheet by remember { mutableStateOf(false) }
+    var showPhotoPickerSheet by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showSuccessMessage by remember { mutableStateOf(false) }
     var editedFirstName by remember { mutableStateOf(contact.firstName ?: "") }
@@ -141,7 +144,7 @@ fun ContactDetailsScreen(
                     dominantColor = dominantColor,
                     onChangePhotoClick = {
                         if (isEditMode) {
-                            onChangePhoto()
+                            showPhotoPickerSheet = true
                         } else {
                             showChangePhotoSheet = true
                         }
@@ -197,7 +200,23 @@ fun ContactDetailsScreen(
                 onUpdateContact(contactId, firstName, lastName, phoneNumber)
                 showChangePhotoSheet = false
             },
-            onChangePhoto = onChangePhoto
+            onChangePhoto = onChangePhoto,
+            onCameraClick = onCameraClick
+        )
+    }
+    
+    // Photo Picker Bottom Sheet (for Edit Mode)
+    if (showPhotoPickerSheet) {
+        PhotoPickerBottomSheet(
+            onDismiss = { showPhotoPickerSheet = false },
+            onCameraClick = {
+                onCameraClick()
+                showPhotoPickerSheet = false
+            },
+            onGalleryClick = {
+                onChangePhoto()
+                showPhotoPickerSheet = false
+            }
         )
     }
     

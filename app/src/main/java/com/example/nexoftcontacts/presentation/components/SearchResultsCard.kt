@@ -14,6 +14,7 @@ fun SearchResultsCard(
     contacts: List<Contact>,
     onDeleteContact: (String) -> Unit,
     onContactClick: (Contact) -> Unit,
+    onContactEditClick: (Contact) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -49,6 +50,7 @@ fun SearchResultsCard(
                     contact = contact,
                     onDeleteContact = onDeleteContact,
                     onContactClick = onContactClick,
+                    onContactEditClick = onContactEditClick,
                     modifier = Modifier.fillMaxWidth()
                 )
                 

@@ -25,13 +25,13 @@ fun ContactRow(
     contact: Contact,
     onDeleteContact: (String) -> Unit,
     onContactClick: (Contact) -> Unit,
+    onContactEditClick: (Contact) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
     
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
-            // 
             true
         },
         positionalThreshold = { it * 0.25f }
@@ -60,15 +60,15 @@ fun ContactRow(
             SwipeBackground(
                 dismissValue = dismissState.targetValue,
                 onEditClick = { 
-                    onContactClick(contact) 
+                    onContactEditClick(contact)
                     coroutineScope.launch {
-                        dismissState.reset() // Butona tıklayınca kapat
+                        dismissState.reset()
                     }
                 },
                 onDeleteClick = { 
                     showDeleteDialog = true
                     coroutineScope.launch {
-                        dismissState.reset() // Butona tıklayınca kapat
+                        dismissState.reset()
                     }
                 }
             )
@@ -89,7 +89,6 @@ fun ContactRow(
                     .padding(horizontal = Dimens.spaceMedium, vertical = Dimens.spaceSmall),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Profile photo with badge
                 Box {
                     if (contact.photoUri != null) {
                         SubcomposeAsyncImage(
@@ -119,7 +118,6 @@ fun ContactRow(
                         )
                     }
                     
-                    // Phone badge if contact is saved to device
                     if (contact.isDeviceContact) {
                         Icon(
                             painter = painterResource(id = R.drawable.telephone),

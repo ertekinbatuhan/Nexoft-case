@@ -55,12 +55,12 @@ fun ContactsApp(
     viewModel: ContactViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    // Explicitly cast to PhotoRepositoryImpl to access launcher setters
     val photoRepository: PhotoRepositoryImpl = viewModel.photoRepository
     val coroutineScope = rememberCoroutineScope()
     
     var showAddContactSheet by remember { mutableStateOf(false) }
     var selectedContact by remember { mutableStateOf<Contact?>(null) }
+    var openInEditMode by remember { mutableStateOf(false) }
     var isSavedToPhone by remember { mutableStateOf<Map<String, Boolean>>(emptyMap()) }
     var showPermissionDialog by remember { mutableStateOf(false) }
     var permissionDialogMessage by remember { mutableStateOf("") }
@@ -92,7 +92,6 @@ fun ContactsApp(
                             ContactsHelper.markContactAsSaved(context, contactId)
                             isSavedToPhone = isSavedToPhone + (contactId to true)
                             viewModel.onEvent(ContactEvent.RefreshContacts)
-                            // İzin verdikten sonra kaydettik - snackbar'ı tetikle
                             onSaveSuccess?.invoke()
                             onSaveSuccess = null
                         }
@@ -106,15 +105,12 @@ fun ContactsApp(
         }
     }
     
-    // Camera permission launcher
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            // Permission granted, trigger camera
             viewModel.onEvent(ContactEvent.OpenCamera(context))
         } else {
-            // Permission denied, show explanation
             permissionDialogMessage = "Camera permission is required to take photos. Please enable it in your device settings."
             showPermissionDialog = true
         }
@@ -135,7 +131,6 @@ fun ContactsApp(
         viewModel.onEvent(ContactEvent.SetSelectedPhoto(uri))
     }
     
-    // Set launchers to the injected PhotoRepository instance
     LaunchedEffect(Unit) {
         photoRepository.setCameraLauncher(cameraLauncher)
         photoRepository.setGalleryLauncher(galleryLauncher)
@@ -194,12 +189,17 @@ fun ContactsApp(
         },
         onContactClick = { contact ->
             selectedContact = contact
+            openInEditMode = false
+        },
+        onContactEditClick = { contact ->
+            selectedContact = contact
+            openInEditMode = true
         }
     )
     
     if (showAddContactSheet) {
         AddContactScreen(
-            selectedPhotoUri = viewModel.selectedPhotoUri,
+            selectedPhotoUri = viewModel.selectedPhotoUri.value,
             onDismiss = {
                 showAddContactSheet = false
                 viewModel.onEvent(ContactEvent.ClearSelectedPhoto)
@@ -217,7 +217,6 @@ fun ContactsApp(
             },
             isLoading = operationState.isLoading,
             onCameraClick = {
-                // Request camera permission first
                 cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
             },
             onGalleryClick = {
@@ -253,18 +252,18 @@ fun ContactsApp(
     selectedContact?.let { contact ->
         ContactDetailsScreen(
             contact = contact,
-            selectedPhotoUri = viewModel.selectedPhotoUri,
+            selectedPhotoUri = viewModel.selectedPhotoUri.value,
             isSavedToPhone = isSavedToPhone[contact.id] ?: false,
+            initialEditMode = openInEditMode,
             onDismiss = {
                 selectedContact = null
+                openInEditMode = false
                 viewModel.onEvent(ContactEvent.ClearSelectedPhoto)
             },
             onSaveToPhone = { onSuccess ->
                 if (isSavedToPhone[contact.id] != true) {
-                    // Callback'i sakla
                     onSaveSuccess = onSuccess
                     
-                    // İlk kez - izin isteyeceğiz
                     coroutineScope.launch(Dispatchers.Main) {
                         val hasPermission = withContext(Dispatchers.IO) {
                             ContextCompat.checkSelfPermission(
@@ -274,7 +273,6 @@ fun ContactsApp(
                         }
                         
                         if (hasPermission) {
-                            // İzin var - direkt kaydet
                             val success = withContext(Dispatchers.IO) {
                                 ContactsHelper.saveContactToPhone(
                                     context,
@@ -288,12 +286,11 @@ fun ContactsApp(
                                     ContactsHelper.markContactAsSaved(context, contactId)
                                     isSavedToPhone = isSavedToPhone + (contactId to true)
                                     viewModel.onEvent(ContactEvent.RefreshContacts)
-                                    onSuccess() // Snackbar göster
+                                    onSuccess()
                                     onSaveSuccess = null
                                 }
                             }
                         } else {
-                            // İzin yok - iste
                             contactsPermissionLauncher.launch(Manifest.permission.WRITE_CONTACTS)
                         }
                     }
@@ -317,6 +314,9 @@ fun ContactsApp(
             },
             onChangePhoto = {
                 viewModel.onEvent(ContactEvent.OpenGallery(context))
+            },
+            onCameraClick = {
+                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
             },
             onClearSelectedPhoto = {
                 viewModel.onEvent(ContactEvent.ClearSelectedPhoto)
