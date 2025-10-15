@@ -1,4 +1,4 @@
-# Nexoft Contacts
+# Nexoft  Phone Contacts
 
 A modern Android contacts management application built with Jetpack Compose and Clean Architecture principles.
 
