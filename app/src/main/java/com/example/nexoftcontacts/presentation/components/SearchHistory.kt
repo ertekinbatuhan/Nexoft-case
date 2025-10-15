@@ -9,10 +9,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.example.nexoftcontacts.ui.theme.BorderLight
+import com.example.nexoftcontacts.ui.theme.CustomTextStyles
+import com.example.nexoftcontacts.ui.theme.Dimens
+import com.example.nexoftcontacts.ui.theme.TextTertiary
+import com.example.nexoftcontacts.ui.theme.White
 
 @Composable
 fun SearchHistory(
@@ -31,27 +32,22 @@ fun SearchHistory(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 32.dp, vertical = 16.dp),
+                .padding(horizontal = Dimens.spaceXLarge, vertical = Dimens.spaceMedium),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "SEARCH HISTORY",
-                fontSize = 13.sp,
-                fontWeight = FontWeight.W600,
-                color = Color(0xFF6B7280),
-                letterSpacing = 0.5.sp
+                style = CustomTextStyles.searchHistoryTitle
             )
             
             TextButton(
                 onClick = onClearAll,
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                contentPadding = PaddingValues(horizontal = Dimens.spaceSmall, vertical = Dimens.spaceXSmall)
             ) {
                 Text(
                     text = "Clear All",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.W600,
-                    color = Color(0xFF0075FF)
+                    style = CustomTextStyles.clearAllButton
                 )
             }
         }
@@ -60,14 +56,14 @@ fun SearchHistory(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = Dimens.spaceMedium),
             colors = CardDefaults.cardColors(
-                containerColor = Color.White
+                containerColor = White
             ),
             elevation = CardDefaults.cardElevation(
-                defaultElevation = 1.dp
+                defaultElevation = Dimens.elevationSmall
             ),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(Dimens.radiusMedium)
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth()
@@ -83,9 +79,9 @@ fun SearchHistory(
                     // Add divider between items (except for the last one)
                     if (index < searchHistory.size - 1) {
                         HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            thickness = 0.5.dp,
-                            color = Color(0xFFE5E5E5)
+                            modifier = Modifier.padding(horizontal = Dimens.spaceMedium),
+                            thickness = Dimens.borderWidth / 2,
+                            color = BorderLight
                         )
                     }
                 }
@@ -105,27 +101,23 @@ private fun SearchHistoryItem(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = Dimens.spaceMedium, vertical = Dimens.spaceSmall2),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // X icon on the left
         Icon(
             imageVector = Icons.Default.Close,
             contentDescription = "Remove",
-            tint = Color(0xFF4F4F4F),
+            tint = TextTertiary,
             modifier = Modifier
-                .size(16.dp)
+                .size(Dimens.iconSmall)
                 .clickable(onClick = onRemove)
         )
         
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(Dimens.spaceSmall))
         
-        // Text next to icon
         Text(
             text = query,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Normal,
-            color = Color(0xFF4F4F4F),
+            style = CustomTextStyles.searchHistoryItem,
             modifier = Modifier.weight(1f)
         )
     }

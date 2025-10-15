@@ -9,10 +9,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.example.nexoftcontacts.ui.theme.CustomTextStyles
+import com.example.nexoftcontacts.ui.theme.Dimens
+import com.example.nexoftcontacts.ui.theme.Success
+import com.example.nexoftcontacts.ui.theme.White
 import kotlinx.coroutines.delay
 
 @Composable
@@ -37,40 +37,41 @@ fun DeleteSuccessSnackbar(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 32.dp, start = 16.dp, end = 16.dp),
-                shape = RoundedCornerShape(12.dp),
-                color = Color.White,
-                shadowElevation = 4.dp
+                    .padding(
+                        bottom = Dimens.spaceXLarge,
+                        start = Dimens.spaceMedium,
+                        end = Dimens.spaceMedium
+                    ),
+                shape = RoundedCornerShape(Dimens.radiusMedium),
+                color = White,
+                shadowElevation = Dimens.elevationMedium
             ) {
                 Row(
                     modifier = Modifier
-                        .padding(16.dp),
+                        .padding(Dimens.spaceMedium),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.spaceSmall2)
                 ) {
-                    // Success icon
                     Box(
                         modifier = Modifier
-                            .size(24.dp)
+                            .size(Dimens.iconLarge)
                             .background(
-                                color = Color(0xFF12B76A),
-                                shape = RoundedCornerShape(12.dp)
+                                color = Success,
+                                shape = RoundedCornerShape(Dimens.radiusMedium)
                             ),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Check,
                             contentDescription = "Success",
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
+                            tint = White,
+                            modifier = Modifier.size(Dimens.iconSmall)
                         )
                     }
                     
                     Text(
                         text = message,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF12B76A)
+                        style = CustomTextStyles.successMessage
                     )
                 }
             }
