@@ -19,6 +19,8 @@ A modern Android contacts management application built with Jetpack Compose and 
 - ✅ Pull-to-refresh
 - ✅ Empty states and loading indicators
 - ✅ Success/Error snackbar notifications
+- ✅ Lottie animation success screen
+- ✅ Seamless screen transitions (no jarring UI jumps)
 
 ### Search & Filter
 - ✅ Real-time search by name
@@ -99,13 +101,20 @@ app/
     ├── screens/                 # Main app screens
     │   ├── ContactsScreen.kt
     │   ├── ContactDetailsScreen.kt
-    │   └── AddContactScreen.kt
+    │   ├── AddContactScreen.kt
+    │   └── ContactSuccessScreen.kt
     ├── components/              # Reusable UI components
     │   ├── ContactRow.kt
     │   ├── ContactList.kt
     │   ├── SearchBar.kt
     │   ├── PhotoSection.kt
     │   └── ... (25+ components)
+    ├── navigation/              # Navigation & Screen management
+    │   └── ContactsNavigation.kt
+    ├── permissions/             # Permission handling
+    │   └── PermissionHandler.kt
+    ├── launcher/                # Camera/Gallery launchers
+    │   └── LauncherSetup.kt
     ├── viewmodel/               # ViewModels
     │   └── ContactViewModel.kt
     ├── state/                   # UI State definitions
@@ -135,7 +144,31 @@ UI Event → ViewModel → Use Case → Repository → Data Source
            UI Recomposition
 ```
 
-#### 2. Repository Pattern
+#### 2. Modular Composables
+Separation of concerns with specialized composable functions:
+
+**PermissionHandler.kt**
+- Centralized permission management
+- Camera and Contacts permission handling
+- Permission denied dialog with user-friendly messages
+- Reusable across the app
+
+**LauncherSetup.kt**
+- Camera launcher configuration
+- Gallery picker integration
+- Photo repository initialization
+- Automatic launcher lifecycle management
+
+**ContactsNavigation.kt**
+- Screen navigation logic
+- State coordination between screens
+- Seamless screen transitions
+- Success/Error state handling
+
+**MainActivity.kt** (Minimal)
+- Clean activity setup with delegated responsibilities to specialized components
+
+#### 3. Repository Pattern
 Abstracts data sources (API + Local DB) from business logic:
 
 ```kotlin
@@ -154,7 +187,7 @@ class ContactRepositoryImpl(
 }
 ```
 
-#### 3. Use Cases (Single Responsibility)
+#### 4. Use Cases (Single Responsibility)
 Each use case handles one specific business operation:
 
 ```kotlin
@@ -165,7 +198,7 @@ class CreateContactUseCase(private val repository: ContactRepository) {
 }
 ```
 
-#### 4. Dependency Injection (Hilt)
+#### 5. Dependency Injection (Hilt)
 Automatic dependency management:
 
 ```kotlin
@@ -177,7 +210,7 @@ class ContactViewModel @Inject constructor(
 ) : ViewModel()
 ```
 
-#### 5. State Management
+#### 6. State Management
 Centralized state with Kotlin Flow:
 
 ```kotlin
@@ -201,26 +234,48 @@ val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 ```
 1. User fills form and clicks "Done"
    ↓
-2. UI sends event: ContactEvent.AddContact
+2. AddContactScreen sends event: ContactEvent.AddContact
    ↓
-3. ViewModel receives event
+3. ContactViewModel receives event
    ↓
 4. ViewModel calls CreateContactUseCase
    ↓
 5. Use Case calls ContactRepository.createUser()
    ↓
 6. Repository:
+   - Validates image format (PNG/JPG only)
    - Uploads image to API (if exists)
    - Creates contact via API
    - Caches to Room database
    ↓
 7. Repository returns Result<Contact>
    ↓
-8. ViewModel updates state (success/error)
+8. ViewModel updates operationState (isSuccess = true)
    ↓
-9. UI recomposes with new state
+9. ContactsNavigation detects success state
    ↓
-10. Success screen shows / Error snackbar displays
+10. AddContactScreen remains open (with loading state)
+   ↓
+11. ContactSuccessScreen shows on top (Lottie animation)
+   ↓
+12. After 2 seconds, both screens dismiss
+   ↓
+13. ContactsScreen shows with updated contact list
+```
+
+### Permission Flow Example
+
+```
+1. User taps camera button
+   ↓
+2. PermissionHandler.requestCameraPermission() called
+   ↓
+3. Check if permission already granted
+   ├─ Yes → Execute onGranted callback
+   └─ No → Request permission via launcher
+          ↓
+          ├─ Granted → Execute callback
+          └─ Denied → Show AlertDialog with explanation
 ```
 
 ### Caching Strategy
@@ -360,11 +415,24 @@ POST   /api/User/UploadImage
 
 ## 🎯 Key Features Implementation
 
+### Modular Architecture
+- Clean separation of concerns with specialized components
+- Centralized permission management
+- Reusable photo picker and camera integration
+- Coordinated screen navigation and state management
+
 ### Camera Integration
 - Runtime permission handling for CAMERA permission
 - FileProvider URI generation for secure photo storage
 - ImageRequest.Builder for proper URI handling with Coil
 - Real-time photo preview after capture
+- Automatic launcher lifecycle management
+
+### Permission Management
+- Centralized permission handling composable
+- User-friendly permission denied dialogs
+- Permission state tracking
+- Callback-based permission flow
 
 ### Swipe Gestures
 - Swipe right → Edit contact (opens in edit mode)
@@ -375,12 +443,21 @@ POST   /api/User/UploadImage
 - Track contacts saved to device using SharedPreferences
 - Visual indicator for synced contacts
 - One-tap save to device contacts
+- Runtime WRITE_CONTACTS permission handling
 
 ### State Management
 - Centralized state using StateFlow
 - Separate UI state and operation state
 - Loading, success, and error states
 - Optimistic UI updates
+- Seamless screen transitions
+
+### Success Flow UX
+- Add Contact screen stays open during save operation
+- Success screen (Lottie animation) shows on top
+- No jarring transitions to main screen
+- Auto-dismiss after 2 seconds
+- Clean state cleanup after completion
 
 ## 📝 Code Quality
 
@@ -393,11 +470,13 @@ POST   /api/User/UploadImage
 - ✅ Clean code principles
 
 ### Design Patterns
-- Repository Pattern
-- Observer Pattern (Flow/StateFlow)
-- Factory Pattern (Hilt modules)
-- Strategy Pattern (Use cases)
+- **Repository Pattern**: Data abstraction layer
+- **Observer Pattern**: Flow/StateFlow for reactive state
+- **Factory Pattern**: Hilt modules for dependency creation
+- **Strategy Pattern**: Use cases for business logic
+- **Composable Wrappers**: Reusable permission and launcher logic
+- **State Hoisting**: Unidirectional data flow
+- **Separation of Concerns**: Modular component design
 
----
 
-**Note**: This is a case study project for Nexoft.
+
