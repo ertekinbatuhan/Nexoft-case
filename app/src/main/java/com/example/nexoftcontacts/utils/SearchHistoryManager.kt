@@ -13,7 +13,6 @@ class SearchHistoryManager(context: Context) {
         private const val KEY_SEARCH_HISTORY = "search_history"
         private const val MAX_HISTORY_SIZE = 10
         private const val DELIMITER = "|||"
-        private const val MIN_QUERY_LENGTH = 3 // Minimum characters to save
     }
     
     fun addSearchQuery(query: String) {

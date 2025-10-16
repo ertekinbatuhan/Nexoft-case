@@ -51,6 +51,7 @@ fun ContactsNavigation(
     ContactsScreen(
         contacts = uiState.filteredContacts,
         searchQuery = uiState.searchQuery,
+        isSearchFocused = uiState.isSearchFocused,
         searchHistory = searchHistory,
         isLoading = uiState.isLoading,
         errorMessage = uiState.errorMessage,
@@ -70,12 +71,9 @@ fun ContactsNavigation(
         },
         onClearSearch = {
             viewModel.onEvent(ContactEvent.ClearSearch)
-            viewModel.onEvent(ContactEvent.LoadSearchHistory)
         },
         onSearchFocusChanged = { focused ->
-            if (focused) {
-                viewModel.onEvent(ContactEvent.LoadSearchHistory)
-            }
+            viewModel.onEvent(ContactEvent.SetSearchFocus(focused))
         },
         onHistoryItemClick = { query ->
             viewModel.onEvent(ContactEvent.SelectSearchHistory(query))

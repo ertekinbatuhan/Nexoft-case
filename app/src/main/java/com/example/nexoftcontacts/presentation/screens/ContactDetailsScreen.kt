@@ -69,7 +69,6 @@ fun ContactDetailsScreen(
                     }
                 }
             } catch (e: Exception) {
-                // Keep default color
             }
         }
     }
@@ -106,10 +105,8 @@ fun ContactDetailsScreen(
                     isEditMode = isEditMode,
                     onCancelEdit = {
                         if (initialEditMode) {
-                            // If opened directly in edit mode (from swipe), close the sheet
                             onDismiss()
                         } else {
-                            // If switched to edit mode from details view, go back to view mode
                             isEditMode = false
                             // Reset edited values
                             editedFirstName = contact.firstName ?: ""
@@ -143,7 +140,6 @@ fun ContactDetailsScreen(
 
                 Spacer(modifier = Modifier.height(Dimens.spacerHeight19))
 
-                // Profile Photo Section
                 ContactProfileSection(
                     photoUri = selectedPhotoUri ?: contact.photoUri?.let { Uri.parse(it) },
                     initial = contact.firstName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
@@ -184,8 +180,7 @@ fun ContactDetailsScreen(
                     )
                 }
             }
-            
-            // Success Snackbar - Inside the Box to be visible within ModalBottomSheet
+
             SuccessSnackbar(
                 showSnackbar = showSuccessMessage,
                 onDismiss = { showSuccessMessage = false },
@@ -193,8 +188,7 @@ fun ContactDetailsScreen(
             )
         }
     }
-    
-    // Change Photo Sheet
+
     if (showChangePhotoSheet) {
         ChangePhotoSheet(
             contact = contact,
@@ -210,8 +204,7 @@ fun ContactDetailsScreen(
             onCameraClick = onCameraClick
         )
     }
-    
-    // Photo Picker Bottom Sheet (for Edit Mode)
+
     if (showPhotoPickerSheet) {
         PhotoPickerBottomSheet(
             onDismiss = { showPhotoPickerSheet = false },
@@ -225,8 +218,7 @@ fun ContactDetailsScreen(
             }
         )
     }
-    
-    // Delete Contact Dialog
+
     if (showDeleteDialog) {
         DeleteContactDialog(
             onDismiss = {
@@ -235,7 +227,7 @@ fun ContactDetailsScreen(
             onConfirm = {
                 contact.id?.let { contactId ->
                     onDeleteContact(contactId)
-                    onDismiss() // Close the contact details screen after deletion
+                    onDismiss()
                 }
             }
         )

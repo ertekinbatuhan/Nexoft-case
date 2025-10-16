@@ -6,6 +6,7 @@ data class ContactUiState(
     val contacts: List<Contact> = emptyList(),
     val filteredContacts: List<Contact> = emptyList(),
     val searchQuery: String = "",
+    val isSearchFocused: Boolean = false,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val isRefreshing: Boolean = false

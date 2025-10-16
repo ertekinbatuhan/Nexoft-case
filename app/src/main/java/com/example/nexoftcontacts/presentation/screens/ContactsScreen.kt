@@ -15,6 +15,7 @@ import com.example.nexoftcontacts.ui.theme.*
 fun ContactsScreen(
     contacts: List<com.example.nexoftcontacts.data.model.Contact>,
     searchQuery: String = "",
+    isSearchFocused: Boolean = false,
     searchHistory: List<String> = emptyList(),
     isLoading: Boolean = false,
     errorMessage: String? = null,
@@ -36,8 +37,6 @@ fun ContactsScreen(
     onContactEditClick: (com.example.nexoftcontacts.data.model.Contact) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    var isSearchFocused by remember { mutableStateOf(false) }
-    
     Scaffold(
         topBar = {
             TopAppBar(
@@ -79,10 +78,7 @@ fun ContactsScreen(
                     searchQuery = searchQuery,
                     onSearchQueryChange = onSearchQueryChange,
                     onClearSearch = onClearSearch,
-                    onFocusChanged = { focused ->
-                        isSearchFocused = focused
-                        onSearchFocusChanged(focused)
-                    },
+                    onFocusChanged = onSearchFocusChanged,
                     placeholder = "Search by name",
                     modifier = Modifier.padding(top = 16.dp, bottom = 10.dp)
                 )

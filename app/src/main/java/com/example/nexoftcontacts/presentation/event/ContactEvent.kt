@@ -44,6 +44,7 @@ sealed class ContactEvent {
     data class SelectSearchHistory(val query: String) : ContactEvent()
     data class RemoveSearchHistory(val query: String) : ContactEvent()
     object ClearSearchHistory : ContactEvent()
+    data class SetSearchFocus(val isFocused: Boolean) : ContactEvent()
     
     // State Management Operations
     object ClearOperationState : ContactEvent()

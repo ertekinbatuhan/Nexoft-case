@@ -104,7 +104,7 @@ fun ContactRow(
                     painter = painterResource(id = R.drawable.delete),
                     contentDescription = "Delete",
                     tint = BackgroundLight,
-                    modifier = Modifier.size(Dimens.iconMedium)
+                    modifier = Modifier.size(Dimens.iconSmall)
                 )
             }
         }
