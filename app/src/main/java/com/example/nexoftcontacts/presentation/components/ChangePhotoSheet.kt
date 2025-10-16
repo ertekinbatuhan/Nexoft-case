@@ -23,6 +23,8 @@ fun ChangePhotoSheet(
     var editedPhoneNumber by remember { mutableStateOf(contact.phoneNumber ?: "") }
     var showPhotoPickerSheet by remember { mutableStateOf(false) }
     
+    val isDoneEnabled = editedFirstName.isNotBlank()
+    
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
@@ -47,7 +49,7 @@ fun ChangePhotoSheet(
             ) {
                 ContactFormHeader(
                     title = "",
-                    isDoneEnabled = true,
+                    isDoneEnabled = isDoneEnabled,
                     onCancel = onDismiss,
                     onDone = {
                         contact.id?.let { contactId ->

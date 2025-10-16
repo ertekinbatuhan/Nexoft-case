@@ -50,8 +50,7 @@ fun AddContactScreen(
     var phoneNumber by remember { mutableStateOf("") }
     var showPhotoPickerSheet by remember { mutableStateOf(false) }
 
-    val isDoneEnabled =
-        firstName.isNotBlank() && lastName.isNotBlank() && phoneNumber.isNotBlank() && !isLoading
+    val isDoneEnabled = firstName.isNotBlank() && !isLoading
     val bottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
