@@ -6,6 +6,7 @@ A modern Android contacts management application built with Jetpack Compose and 
 
 ### Contact Management
 - ✅ Create, read, update, and delete contacts
+- ✅ Flexible validation (only first name required)
 - ✅ Add contact photos from camera or gallery
 - ✅ Real-time photo preview with proper FileProvider URI handling
 - ✅ Save contacts to device contacts
@@ -23,16 +24,18 @@ A modern Android contacts management application built with Jetpack Compose and 
 - ✅ Seamless screen transitions (no jarring UI jumps)
 
 ### Search & Filter
-- ✅ Real-time search by name
-- ✅ Search history management
+- ✅ Real-time instant search by name
+- ✅ Search history with debounced persistence
 - ✅ Grouped search results display
+- ✅ Zero-delay filtering for immediate responsiveness
 
 ### Photo Management
 - ✅ Capture photos using camera
 - ✅ Select photos from gallery
 - ✅ Photo preview before saving
 - ✅ Image validation (PNG/JPG only)
-- ✅ Coil image loading with caching
+- ✅ Coil image loading with disk caching (50MB)
+- ✅ Offline image support via persistent cache
 
 ## 🏗️ Architecture
 
@@ -87,6 +90,10 @@ app/
 │       └── Contact.kt
 │
 ├── domain/
+│   ├── manager/                 # State & Business Logic Managers
+│   │   ├── ContactStateManager.kt    # Centralized state management
+│   │   ├── ContactPhotoHandler.kt    # Photo operations handler
+│   │   └── ContactSearchHandler.kt   # Search & filtering logic
 │   ├── repository/              # Repository interfaces
 │   │   ├── ContactRepository.kt
 │   │   └── PhotoRepository.kt
@@ -130,7 +137,34 @@ app/
 
 ### Key Architectural Patterns
 
-#### 1. MVVM (Model-View-ViewModel)
+#### 1. Manager Classes Pattern
+Separation of concerns with dedicated manager classes for business logic:
+
+**ContactStateManager**
+- Centralized UI and operation state management
+- Eliminates state duplication across ViewModels
+- Provides clean state update APIs
+
+**ContactPhotoHandler**
+- Photo URI state management
+- Image upload validation and processing
+- Reusable across different screens
+
+**ContactSearchHandler**
+- Contact filtering logic
+- Search history management with debouncing
+- Optimized for instant UI responsiveness
+
+```kotlin
+@HiltViewModel
+class ContactViewModel @Inject constructor(
+    private val stateManager: ContactStateManager,
+    private val photoHandler: ContactPhotoHandler,
+    private val searchHandler: ContactSearchHandler
+) : ViewModel()
+```
+
+#### 2. MVVM (Model-View-ViewModel)
 - **View (Compose)**: Observes state and renders UI
 - **ViewModel**: Manages UI state and handles business logic
 - **Model**: Data layer with repositories and data sources
@@ -144,7 +178,7 @@ UI Event → ViewModel → Use Case → Repository → Data Source
            UI Recomposition
 ```
 
-#### 2. Modular Composables
+#### 3. Modular Composables
 Separation of concerns with specialized composable functions:
 
 **PermissionHandler.kt**
@@ -168,7 +202,7 @@ Separation of concerns with specialized composable functions:
 **MainActivity.kt** (Minimal)
 - Clean activity setup with delegated responsibilities to specialized components
 
-#### 3. Repository Pattern
+#### 4. Repository Pattern
 Abstracts data sources (API + Local DB) from business logic:
 
 ```kotlin
@@ -187,7 +221,7 @@ class ContactRepositoryImpl(
 }
 ```
 
-#### 4. Use Cases (Single Responsibility)
+#### 5. Use Cases (Single Responsibility)
 Each use case handles one specific business operation:
 
 ```kotlin
@@ -198,7 +232,7 @@ class CreateContactUseCase(private val repository: ContactRepository) {
 }
 ```
 
-#### 5. Dependency Injection (Hilt)
+#### 6. Dependency Injection (Hilt)
 Automatic dependency management:
 
 ```kotlin
@@ -210,7 +244,7 @@ class ContactViewModel @Inject constructor(
 ) : ViewModel()
 ```
 
-#### 6. State Management
+#### 7. State Management
 Centralized state with Kotlin Flow:
 
 ```kotlin
@@ -280,22 +314,61 @@ val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
 ### Caching Strategy
 
+**Contact Data Caching:**
 - **Local First**: Always show cached data immediately
 - **Background Sync**: Fetch from API in background
 - **Cache Timeout**: 5 minutes cache validity
 - **Offline Support**: Works without internet using cached data
 
+**Image Caching (Coil):**
+- **Memory Cache**: 25% of available RAM for instant access
+- **Disk Cache**: 50MB persistent storage for offline support
+- **Three-Tier System**: 
+  - Memory → Instant retrieval (0ms)
+  - Disk → Fast retrieval without network
+  - Network → Fallback for cache misses
+- **Cache Policy**: Enabled for all layers, respects custom policies over server headers
+
 ```kotlin
-override suspend fun getAllContacts(forceRefresh: Boolean): Result<List<Contact>> {
-    val shouldFetchFromApi = forceRefresh || 
-                             System.currentTimeMillis() - cacheTimestamp > CACHE_TIMEOUT
-    
-    if (shouldFetchFromApi) {
-        // Fetch from API and update cache
-    } else {
-        // Return cached data
-    }
+ImageLoader.Builder(context)
+    .memoryCache { maxSizePercent(0.25) }
+    .diskCache { maxSizeBytes(50 * 1024 * 1024) }
+    .diskCachePolicy(CachePolicy.ENABLED)
+    .build()
+```
+
+### Search Performance Optimization
+
+**Instant Filtering with Debounced Persistence:**
+
+```kotlin
+// UI filtering: 0ms delay for immediate responsiveness
+val filteredContacts = searchHandler.filterContacts(contacts, query)
+stateManager.updateSearchQuery(query, filteredContacts)
+
+// History saving: Debounced to avoid excessive writes
+viewModelScope.launch {
+    delay(1000L)  // Wait 1s after user stops typing
+    searchHandler.saveToSearchHistory(query)
 }
+```
+
+**Benefits:**
+- Zero UI lag during typing
+- Reduced database writes
+- Better battery efficiency
+- Smooth user experience
+
+### Validation Strategy
+
+**Flexible Form Validation:**
+- Only first name is required for contact creation/update
+- Last name and phone number are optional
+- Real-time validation feedback
+- Done button enables immediately when first name is entered
+
+```kotlin
+val isDoneEnabled = firstName.isNotBlank() && !isLoading
 ```
 
 ### Error Handling
@@ -328,7 +401,9 @@ The architecture is designed for testability:
 ✅ **Maintainability**: Clear structure makes code easy to understand  
 ✅ **Flexibility**: Easy to swap implementations (e.g., different API)  
 ✅ **Reusability**: Components and use cases can be reused  
-✅ **Offline First**: Works without internet connection
+✅ **Offline First**: Works without internet connection  
+✅ **Performance**: Instant search and optimized caching  
+✅ **User-Friendly**: Flexible validation and immediate feedback
 
 ## 🛠️ Tech Stack
 
@@ -383,16 +458,51 @@ implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
 ## 🚀 Getting Started
 
-1. Clone the repository
+### Prerequisites
+- Android Studio Hedgehog or later
+- JDK 17 or later
+- Android SDK 34
+
+### Setup
+
+1. **Clone the repository**
 ```bash
 git clone https://github.com/yourusername/nexoft-contacts.git
+cd nexoft-contacts
 ```
 
-2. Open the project in Android Studio
+2. **Configure API Key**
 
-3. Sync Gradle dependencies
+Create a `gradle.properties` file in the project root directory (if not exists) and add your API key:
 
-4. Run the app
+```properties
+API_KEY=your_api_key_here
+```
+
+**Note:** The `gradle.properties` file is gitignored for security. Never commit your API key to version control.
+
+The API key configuration is handled in `app/build.gradle.kts`:
+
+```kotlin
+android {
+    // ...
+    buildFeatures {
+        buildConfig = true
+    }
+    
+    defaultConfig {
+        // ...
+        val apiKey = project.findProperty("API_KEY") as String? ?: ""
+        buildConfigField("String", "API_KEY", "\"${apiKey}\"")
+    }
+}
+```
+
+3. **Open the project in Android Studio**
+
+4. **Sync Gradle dependencies**
+
+5. **Run the app**
 
 ### API Configuration
 
