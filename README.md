@@ -91,9 +91,9 @@ app/
 │
 ├── domain/
 │   ├── manager/                 # State & Business Logic Managers
-│   │   ├── ContactStateManager.kt    # Centralized state management
-│   │   ├── ContactPhotoHandler.kt    # Photo operations handler
-│   │   └── ContactSearchHandler.kt   # Search & filtering logic
+│   │   ├── ContactStateManager.kt  # Centralized state management
+│   │   ├── ContactPhotoHandler.kt  # Photo operations handler
+│   │   └── ContactSearchHandler.kt # Search & filtering logic
 │   ├── repository/              # Repository interfaces
 │   │   ├── ContactRepository.kt
 │   │   └── PhotoRepository.kt
@@ -518,10 +518,6 @@ PUT    /api/User/{id}
 DELETE /api/User/{id}
 POST   /api/User/UploadImage
 ```
-
-## 📸 Screenshots
-
-[Add your app screenshots here]
 
 ## 🎯 Key Features Implementation
 
